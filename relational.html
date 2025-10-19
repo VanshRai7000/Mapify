@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relational Model</title>
+
+    <!-- GoJS -->
+    <script src="https://unpkg.com/gojs/release/go-debug.js"></script>
+
+    <link href="/dist/output.css" rel="stylesheet">
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+
+    <style>
+        /* GoJS text styling */
+        .go-node .go-textblock {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-white h-screen flex flex-col">
+
+    <!-- Navbar / Header -->
+    <nav class="bg-gray-900 text-white px-6 py-3 flex items-center justify-between border-b shadow-md">
+        <div class="flex items-center gap-3">
+            <!-- Logo -->
+            <img src="https://img.icons8.com/fluency/48/database.png" alt="Logo" class="w-8 h-8">
+            <span class="font-semibold text-lg">Relational Model</span>
+            <span class="text-xs text-gray-400">Enterprise Edition</span>
+        </div>
+
+        <!-- Optional icons on right -->
+        <div class="flex items-center gap-4">
+            <i data-feather="settings" class="w-5 h-5 text-gray-400 hover:text-white cursor-pointer"></i>
+            <i data-feather="help-circle" class="w-5 h-5 text-gray-400 hover:text-white cursor-pointer"></i>
+        </div>
+    </nav>
+
+    <!-- Diagram Container -->
+    <main class="flex-1 p-6 bg-white">
+        <div id="relationalDiagramDiv" class="w-full h-full rounded-xl shadow-lg bg-gray-50"></div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="../logic/relationalDiagram.js"></script>
+   
+</body>
+
+</html>
