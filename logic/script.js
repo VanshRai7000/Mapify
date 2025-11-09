@@ -1073,7 +1073,7 @@ function DeleteDiagram(value) {
 
   if (node) {
     // This will automatically remove connected links too
-    diagram.remove(diagram.findNodeForKey(node.key));
+    diagram.remove(diagram.findNodeForKey(node.key)); 
   }
 }
 
