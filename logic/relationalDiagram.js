@@ -5,49 +5,112 @@ let relationalTables = JSON.parse(sessionStorage.getItem("relationalTables") || 
 if (relationalTables.length === 0) {
     relationalTables = [
         {
-            tableName: "Users",
-            primaryKey: "id",
+            tableName: "Employee",
+            primaryKey: "E_id",
             columns: [
-                { name: "id", type: "INT" },
-                { name: "name", type: "VARCHAR(50)" },
-                { name: "email", type: "VARCHAR(100)" }
+                { name: "E_id", type: "INT" },
+                { name: "E_name", type: "VARCHAR(255)" },
+                { name: "E_Salary", type: "DECIMAL(10,2)" },
+                { name: "E_dept", type: "VARCHAR(100)" }
             ],
             foreignKeys: []
         },
         {
-            tableName: "Orders",
-            primaryKey: "order_id",
+            tableName: "Department",
+            primaryKey: "Dept_id",
             columns: [
-                { name: "order_id", type: "INT" },
-                { name: "user_id", type: "INT" },
-                { name: "amount", type: "DECIMAL" }
+                { name: "Dept_id", type: "INT" },
+                { name: "Dept_name", type: "VARCHAR(255)" },
+                { name: "Manager_id", type: "INT" }
             ],
-            foreignKeys: [{ column: "user_id", references: "Users" }]
+            foreignKeys: [{ column: "Manager_id", references: "Employee" }]
         }
     ];
 }
 
-// ===================== Function to Collect Sample Data from User =====================
-function collectSampleData() {
+// ===================== Auto-Generate Sample Data =====================
+function generateSampleData(numRows = 3) {
     relationalTables.forEach(table => {
-        const numRows = parseInt(prompt(`Enter number of sample rows for table "${table.tableName}":`)) || 0;
         table.sampleData = [];
 
         for (let i = 0; i < numRows; i++) {
             const row = {};
             table.columns.forEach(col => {
-                row[col.name] = prompt(`Enter value for column "${col.name}" in row ${i + 1} of "${table.tableName}":`) || "";
+                row[col.name] = generateValueForColumn(col, i + 1, table);
             });
             table.sampleData.push(row);
         }
     });
 
-    // Refresh the diagram
     updateDiagram();
 }
 
+// ===================== Generate Value Based on Column Type =====================
+function generateValueForColumn(column, rowIndex, table) {
+    const colName = column.name.toLowerCase();
+    const colType = column.type.toUpperCase();
+
+    // Check if it's a primary key
+    if (column.name === table.primaryKey) {
+        return rowIndex;
+    }
+
+    // Check if it's a foreign key
+    const isForeignKey = table.foreignKeys?.some(fk => fk.column === column.name);
+    if (isForeignKey) {
+        return Math.ceil(Math.random() * 3);
+    }
+
+    // NAME FIELDS - Different formats
+    if (colName.includes('firstname') || colName.includes('first_name') || colName.includes('fname') || colName === 'f_name') {
+        const firstNames = ['John', 'Emma', 'Michael', 'Sophia', 'William', 'Olivia', 'James', 'Ava'];
+        return firstNames[rowIndex - 1] || firstNames[rowIndex % firstNames.length];
+    } else if (colName.includes('middlename') || colName.includes('middle_name') || colName.includes('mname') || colName === 'm_name') {
+        const middleNames = ['David', 'Marie', 'Lee', 'Ann', 'James', 'Rose', 'Paul', 'Jane'];
+        return middleNames[rowIndex - 1] || middleNames[rowIndex % middleNames.length];
+    } else if (colName.includes('lastname') || colName.includes('last_name') || colName.includes('lname') || colName === 'l_name' || colName.includes('surname')) {
+        const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis'];
+        return lastNames[rowIndex - 1] || lastNames[rowIndex % lastNames.length];
+    } else if (colName.includes('name') && !colName.includes('username')) {
+        const fullNames = ['John Smith', 'Emma Johnson', 'Michael Williams', 'Sophia Brown', 'William Jones'];
+        return fullNames[rowIndex - 1] || fullNames[rowIndex % fullNames.length];
+    }
+
+    // SALARY/FINANCIAL
+    if (colName.includes('salary') || colName.includes('wage')) {
+        const salaries = [55000, 65000, 75000, 85000, 95000];
+        return salaries[rowIndex - 1] || salaries[rowIndex % salaries.length];
+    }
+
+    // DEPARTMENT
+    if (colName.includes('department') || colName.includes('dept')) {
+        const departments = ['ECE', 'CIVIL', 'MECHANICAL', 'CSE', 'EEE'];
+        return departments[rowIndex - 1] || departments[rowIndex % departments.length];
+    }
+
+    // EMAIL
+    if (colName.includes('email')) {
+        return `user${rowIndex}@email.com`;
+    }
+
+    // PHONE
+    if (colName.includes('phone') || colName.includes('mobile')) {
+        return `98765432${10 + rowIndex}`;
+    }
+
+    // NUMERIC
+    if (colType.includes('INT') || colType.includes('INTEGER')) {
+        return rowIndex;
+    } else if (colType.includes('DECIMAL') || colType.includes('FLOAT')) {
+        return (Math.random() * 100 + 50).toFixed(2);
+    } else if (colType.includes('VARCHAR') || colType.includes('TEXT')) {
+        return `Sample ${rowIndex}`;
+    }
+
+    return `Value${rowIndex}`;
+}
+
 function resetDiagram() {
-    // Reset to original data and clear sample data
     relationalTables.forEach(table => {
         table.sampleData = [];
     });
@@ -62,73 +125,98 @@ function initDiagram() {
     myDiagram = $(go.Diagram, "relationalDiagramDiv", {
         initialContentAlignment: go.Spot.Center,
         "undoManager.isEnabled": true,
-        layout: $(go.ForceDirectedLayout, {
-            defaultSpringLength: 200,
-            defaultElectricalCharge: 150
+        layout: $(go.GridLayout, {
+            wrappingWidth: Infinity,
+            spacing: new go.Size(100, 80),
+            alignment: go.GridLayout.Position
         }),
-        "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom
+        "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
+        initialScale: 0.7  // Default zoom out to 70%
     });
 
-    
-    // ===================== Node Template (Table Style) =====================
+    // ===================== IMPROVED Node Template =====================
     myDiagram.nodeTemplate =
         $(go.Node, "Auto",
             {
                 selectionAdorned: true,
                 resizable: false,
-                locationSpot: go.Spot.Center
+                locationSpot: go.Spot.Center,
+                shadowVisible: true,
+                shadowColor: "rgba(0,0,0,0.15)",
+                shadowOffset: new go.Point(3, 3),
+                shadowBlur: 8
             },
+            
+            // Outer rounded rectangle border
             $(go.Shape, "RoundedRectangle",
                 {
                     fill: "white",
-                    stroke: "#4b5563", // subtle gray border
-                    strokeWidth: 1.5,
-                    portId: "",
-                    fromLinkable: true,
-                    toLinkable: true
+                    stroke: "#D1D5DB",
+                    strokeWidth: 2,
+                    parameter1: 12
                 }
             ),
-            $(go.Panel, "Vertical", { margin: 0 },
+            
+            $(go.Panel, "Vertical",
+                { margin: 0, stretch: go.GraphObject.Fill },
 
-                // 🔹 Table name header (dark purple)
-                $(go.TextBlock,
-                    {
-                        font: "bold 14px Segoe UI, sans-serif",
-                        margin: new go.Margin(6, 8, 6, 8),
-                        stroke: "white",
-                        alignment: go.Spot.Center,
-                        minSize: new go.Size(160, 28),
-                        textAlign: "center",
-                        background: "#6b21a8" // deep purple
-                    },
-                    new go.Binding("text", "tableName")
+                // ========== TABLE HEADER (Purple Gradient) ==========
+                $(go.Panel, "Auto",
+                    { stretch: go.GraphObject.Horizontal },
+                    $(go.Shape, "RoundedRectangle",
+                        {
+                            fill: $(go.Brush, "Linear", { 0: "#7C3AED", 1: "#6D28D9" }),
+                            stroke: null,
+                            parameter1: 10,
+                            parameter2: 0,
+                            height: 50
+                        }
+                    ),
+                    $(go.TextBlock,
+                        {
+                            font: "bold 18px 'Segoe UI', Inter, sans-serif",
+                            stroke: "white",
+                            margin: 14,
+                            textAlign: "center"
+                        },
+                        new go.Binding("text", "tableName")
+                    )
                 ),
 
-                // 🔹 Column header row (lavender)
-                $(go.Panel, "Horizontal",
+                // ========== COLUMN HEADERS ROW (Light Purple) ==========
+                $(go.Panel, "Table",
                     {
-                        padding: 4,
-                        background: "#a78bfa" // soft lavender
+                        background: "#EEF2FF",
+                        stretch: go.GraphObject.Horizontal,
+                        margin: 0,
+                        defaultAlignment: go.Spot.Center
                     },
                     new go.Binding("itemArray", "columnHeaders"),
                     {
                         itemTemplate:
                             $(go.Panel, "Auto",
-                                { margin: 1 },
+                                {
+                                    row: 0,
+                                    stretch: go.GraphObject.Vertical
+                                },
+                                new go.Binding("column", "index"),
                                 $(go.Shape, "Rectangle",
                                     {
-                                        fill: "#8b5cf6", // medium violet
-                                        stroke: "white",
-                                        strokeWidth: 1
+                                        fill: "#E0E7FF",
+                                        stroke: "#C7D2FE",
+                                        strokeWidth: 1,
+                                        width: 140,
+                                        height: 40
                                     }
                                 ),
                                 $(go.TextBlock,
                                     {
-                                        font: "bold 12px Segoe UI, sans-serif",
-                                        margin: 4,
-                                        stroke: "white",
-                                        minSize: new go.Size(70, 22),
-                                        textAlign: "center"
+                                        font: "bold 13px 'Segoe UI', Inter, sans-serif",
+                                        stroke: "#4338CA",
+                                        margin: 8,
+                                        textAlign: "center",
+                                        overflow: go.TextBlock.OverflowEllipsis,
+                                        maxLines: 1
                                     },
                                     new go.Binding("text", "name")
                                 )
@@ -136,39 +224,58 @@ function initDiagram() {
                     }
                 ),
 
-                // 🔹 Data rows (soft beige background, alternating)
+                // ========== DATA ROWS (Alternating Colors) ==========
                 $(go.Panel, "Vertical",
                     {
-                        margin: new go.Margin(0, 2, 4, 2),
+                        stretch: go.GraphObject.Horizontal,
+                        margin: 0,
                         defaultAlignment: go.Spot.Left
                     },
                     new go.Binding("itemArray", "sampleData"),
                     {
                         itemTemplate:
-                            $(go.Panel, "Horizontal",
+                            $(go.Panel, "Table",
+                                {
+                                    stretch: go.GraphObject.Horizontal,
+                                    defaultAlignment: go.Spot.Center
+                                },
+                                new go.Binding("background", "rowIndex", function(idx) {
+                                    return idx % 2 === 0 ? "#FEFCE8" : "#FFFFFF";
+                                }),
                                 new go.Binding("itemArray", "values"),
                                 {
                                     itemTemplate:
                                         $(go.Panel, "Auto",
-                                            { margin: 1 },
+                                            {
+                                                row: 0,
+                                                stretch: go.GraphObject.Vertical
+                                            },
+                                            new go.Binding("column", "index"),
                                             $(go.Shape, "Rectangle",
-                                                new go.Binding("fill", "", (val, obj) =>
-                                                    obj.panel.row % 2 === 0 ? "#fefce8" : "#f5f3ff" // beige vs very light purple
-                                                ).ofObject(),
                                                 {
-                                                    stroke: "#e5e7eb",
-                                                    strokeWidth: 1
-                                                }
+                                                    stroke: "#E5E7EB",
+                                                    strokeWidth: 1,
+                                                    width: 140,
+                                                    height: 36
+                                                },
+                                                new go.Binding("fill", "", function(val, shape) {
+                                                    const panel = shape.part;
+                                                    if (!panel) return "white";
+                                                    const row = panel.data;
+                                                    return row.rowIndex % 2 === 0 ? "#FEFCE8" : "#FFFFFF";
+                                                })
                                             ),
                                             $(go.TextBlock,
                                                 {
-                                                    font: "12px Segoe UI, sans-serif",
-                                                    margin: 4,
-                                                    stroke: "#111827", // dark text
-                                                    minSize: new go.Size(70, 22),
-                                                    textAlign: "center"
+                                                    font: "13px 'Segoe UI', Inter, sans-serif",
+                                                    stroke: "#1F2937",
+                                                    margin: 8,
+                                                    textAlign: "center",
+                                                    overflow: go.TextBlock.OverflowEllipsis,
+                                                    maxLines: 1,
+                                                    maxSize: new go.Size(130, NaN)
                                                 },
-                                                new go.Binding("text", "")
+                                                new go.Binding("text", "value")
                                             )
                                         )
                                 }
@@ -178,28 +285,48 @@ function initDiagram() {
             )
         );
 
-
-
     // ===================== Link Template =====================
     myDiagram.linkTemplate =
         $(go.Link,
-            { routing: go.Link.AvoidsNodes, corner: 5 },
-            $(go.Shape, { strokeWidth: 2, stroke: "#64748b" }),
-            $(go.Shape, { toArrow: "Standard", fill: "#64748b", stroke: "#64748b" })
+            {
+                routing: go.Link.AvoidsNodes,
+                curve: go.Link.JumpOver,
+                corner: 8
+            },
+            $(go.Shape, { strokeWidth: 2.5, stroke: "#3B82F6" }),
+            $(go.Shape, { toArrow: "Standard", fill: "#3B82F6", stroke: null, scale: 1.4 }),
+            $(go.TextBlock,
+                {
+                    segmentOffset: new go.Point(0, -12),
+                    font: "bold 12px 'Segoe UI', Inter, sans-serif",
+                    stroke: "#1E40AF",
+                    background: "white",
+                    margin: 4
+                },
+                new go.Binding("text", "relationship")
+            )
         );
 }
 
 // ===================== Update Diagram Function =====================
 function updateDiagram() {
-    // ===================== Build Nodes =====================
     const nodes = relationalTables.map(table => {
-        const columnHeaders = table.columns.map(col => ({
-            name: col.name
+        // Column headers with index
+        const columnHeaders = table.columns.map((col, idx) => ({
+            name: col.name,
+            index: idx
         }));
 
-        const processedSampleData = (table.sampleData || []).map(row => {
-            const values = table.columns.map(col => row[col.name] || "");
-            return { values: values };
+        // Process sample data with row index and cell values
+        const processedSampleData = (table.sampleData || []).map((row, rowIdx) => {
+            const values = table.columns.map((col, colIdx) => ({
+                value: row[col.name] || "",
+                index: colIdx
+            }));
+            return {
+                values: values,
+                rowIndex: rowIdx
+            };
         });
 
         return {
@@ -210,43 +337,32 @@ function updateDiagram() {
         };
     });
 
-    // ===================== Build Links =====================
+    // Build Links
     const links = [];
     relationalTables.forEach(table => {
         (table.foreignKeys || []).forEach(fk => {
             links.push({
                 from: table.tableName,
-                to: fk.references
+                to: fk.references,
+                relationship: "1:N"
             });
         });
     });
 
-    // ===================== Set Model =====================
+    // Set Model
     const model = new go.GraphLinksModel();
     model.nodeDataArray = nodes;
     model.linkDataArray = links;
     myDiagram.model = model;
-
-    // Debug
-    console.log("Nodes:", nodes);
-    console.log("Links:", links);
 }
 
 // Initialize diagram when page loads
 window.addEventListener('DOMContentLoaded', function () {
     initDiagram();
 
-    // Check if we need to collect sample data on first load
+    // Auto-generate sample data if none exists
     if (relationalTables.every(table => !table.sampleData || table.sampleData.length === 0)) {
-        // Show tables without data first
-        updateDiagram();
-        // Then prompt for data collection
-        setTimeout(() => {
-            const shouldCollect = confirm("No sample data found. Would you like to add sample data now?");
-            if (shouldCollect) {
-                collectSampleData();
-            }
-        }, 500);
+        generateSampleData(3);
     } else {
         updateDiagram();
     }

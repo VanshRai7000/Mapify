@@ -241,6 +241,8 @@ function deleteSubAttribute(btn) {
   subInputWrapper.remove();
 }
 
+// Function 4: addRelationship (ENHANCED)
+// This now creates a clean, styled card matching the entity blocks.
 function addRelationship() {
   // Get current entities from DOM instead of entityNames Set
   const allinput = document.querySelectorAll('.entityNameInput');
@@ -259,70 +261,141 @@ function addRelationship() {
 
   const container = document.getElementById("relationshipsContainer");
   const relDiv = document.createElement("div");
-  relDiv.className = "border p-4 rounded bg-gray-50";
+  // Added 'relationship-container' class for specific selection
+  relDiv.className = "bg-white border border-gray-200 rounded-lg shadow-sm p-4 mb-4 relationship-container";
 
   const entityOptions = currentEntityNames.map(name => `<option value="${name}">${name}</option>`).join("");
 
   relDiv.innerHTML = `
-    <h3 class="font-bold mb-2">Relationship</h3>
-    <input type="text" placeholder="Relationship Name"
-        class="border rounded p-2 w-full mb-2 relationshipNameInput" onblur="createRelationshipDiamond(this)" />
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg font-semibold text-gray-800">New Relationship</h3>
+        <button type="button" 
+            class="p-1.5 rounded-full bg-red-100 text-red-600 hover:bg-red-200"
+            onclick="deleteRelationship(this)">
+            <img src="/img/dustbin.png" class="h-4 w-4" alt="Delete">
+        </button>
+    </div>
+
+    <div class="mb-3">
+        <label class="block text-sm font-medium text-gray-600 mb-1">Relationship Name</label>
+        <input type="text" placeholder="e.g., Works_On"
+            class="relationshipNameInput w-full border border-gray-300 rounded-md shadow-sm text-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" 
+            onblur="createRelationshipDiamond(this)" />
+    </div>
     
-    <div class="flex space-x-4 mb-2">
-        <div class="flex-1">
-            <label class="block mb-1">Entity 1:</label>
-            <select class="border rounded p-2 w-full entitySelect" onchange="checkforentities(this); updateRelationshipDiamond(this)">
-                <option value="">Select Entity</option>
-                ${entityOptions}
-            </select>
-            <label class="block mt-1 mb-1">Participation:</label>
-            <select class="border rounded p-2 w-full participationSelect" onchange="updateRelationshipDiamond(this)">
-                <option value="Total">Total</option>
-                <option value="Partial">Partial</option>
-            </select>
-            <label class="block mt-1 mb-1">Cardinality:</label>
-            <select class="border rounded p-2 w-full">
-                <option>1</option>
-                <option>N</option>
-                <option>M</option>
-            </select>
+    <div class="flex flex-col md:flex-row md:space-x-4 mb-2">
+        <div class="flex-1 mb-4 md:mb-0">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Entity 1</label>
+            <div class="relative">
+                <select class="entitySelect w-full appearance-none border border-gray-300 rounded-lg bg-white shadow-sm text-sm px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150" 
+                        onchange="checkforentities(this); updateRelationshipDiamond(this)">
+                    <option value="">Select Entity</option>
+                    ${entityOptions}
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+            
+            <label class="block text-sm font-medium text-gray-700 mt-3 mb-2">Participation</label>
+            <div class="relative">
+                <select class="participationSelect w-full appearance-none border border-gray-300 rounded-lg bg-white shadow-sm text-sm px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150" 
+                        onchange="updateRelationshipDiamond(this)">
+                    <option value="Partial">Partial</option>
+                    <option value="Total">Total</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+            
+            <label class="block text-sm font-medium text-gray-700 mt-3 mb-2">Cardinality</label>
+            <div class="relative">
+                <select class="cardinalitySelect w-full appearance-none border border-gray-300 rounded-lg bg-white shadow-sm text-sm px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150" 
+                        onchange="updateRelationshipDiamond(this)">
+                    <option>1</option>
+                    <option>N</option>
+                    <option>M</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
         </div>
         
         <div class="flex-1">
-            <label class="block mb-1">Entity 2:</label>
-            <select class="border rounded p-2 w-full entitySelect" onchange="checkforentities(this); updateRelationshipDiamond(this)">
-                <option value="">Select Entity</option>
-                ${entityOptions}
-            </select>
-            <label class="block mt-1 mb-1">Participation:</label>
-            <select class="border rounded p-2 w-full participationSelect" onchange="updateRelationshipDiamond(this)">
-                <option value="Total">Total</option>
-                <option value="Partial">Partial</option>
-            </select>
-            <label class="block mt-1 mb-1">Cardinality:</label>
-            <select class="border rounded p-2 w-full">
-                <option>1</option>
-                <option>N</option>
-                <option>M</option>
-            </select>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Entity 2</label>
+            <div class="relative">
+                <select class="entitySelect w-full appearance-none border border-gray-300 rounded-lg bg-white shadow-sm text-sm px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150" 
+                        onchange="checkforentities(this); updateRelationshipDiamond(this)">
+                    <option value="">Select Entity</option>
+                    ${entityOptions}
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+            
+            <label class="block text-sm font-medium text-gray-700 mt-3 mb-2">Participation</label>
+            <div class="relative">
+                <select class="participationSelect w-full appearance-none border border-gray-300 rounded-lg bg-white shadow-sm text-sm px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150" 
+                        onchange="updateRelationshipDiamond(this)">
+                    <option value="Partial">Partial</option>
+                    <option value="Total">Total</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+            
+            <label class="block text-sm font-medium text-gray-700 mt-3 mb-2">Cardinality</label>
+            <div class="relative">
+                <select class="cardinalitySelect w-full appearance-none border border-gray-300 rounded-lg bg-white shadow-sm text-sm px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150" 
+                        onchange="updateRelationshipDiamond(this)">
+                    <option>1</option>
+                    <option>N</option>
+                    <option>M</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <button onclick="deleteRelationship(this)"
-        class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Remove Relationship</button>
-`; // Enhance the UI for this section also , keep the essential function Intract
-
+  `;
 
   container.appendChild(relDiv);
 }
 
-// Updated createRelationshipDiamond function with better link creation logic
+
+// Function 2: createRelationshipDiamond (MODIFIED)
+// Added a validation check at the beginning.
 function createRelationshipDiamond(input) {
   const relationshipName = input.value.trim();
   if (!relationshipName) return;
 
-  const relationshipDiv = input.closest(".border.p-4.rounded.bg-gray-50");
+  const relationshipDiv = input.closest(".relationship-container"); // Use specific class
+
+  // --- ADDED VALIDATION GUARD ---
+  // We pass one of the dropdowns (or the input itself) to checkforentities
   const entitySelects = relationshipDiv.querySelectorAll('.entitySelect');
+  if (!checkforentities(entitySelects[0] || input)) {
+    console.warn("Duplicate relationship blocked by createRelationshipDiamond.");
+    return; // Do not create if the pair is invalid
+  }
+  // --- END GUARD ---
 
   // Check if relationship diamond already exists
   const existingNode = diagram.model.nodeDataArray.find(n => n.text === relationshipName && n.category?.includes("Relationship"));
@@ -371,10 +444,23 @@ function createRelationshipDiamond(input) {
   diagram.model.commitTransaction("addRelationship");
 }
 
-// Updated updateRelationshipDiamond function
+
+// Function 3: updateRelationshipDiamond (MODIFIED)
+// Added a validation check at the beginning.
 function updateRelationshipDiamond(select) {
-  const relationshipDiv = select.closest(".border.p-4.rounded.bg-gray-50");
+  const relationshipDiv = select.closest(".relationship-container"); // Use specific class
+
+  // --- ADDED VALIDATION GUARD ---
+  // This check runs first. If it's invalid, the function stops.
+  if (!checkforentities(select)) {
+    console.warn("Duplicate relationship blocked by updateRelationshipDiamond.");
+    return; // Do not update if the pair is invalid
+  }
+  // --- END GUARD ---
+
   const relationshipNameInput = relationshipDiv.querySelector('.relationshipNameInput');
+  const cardinalitySelects = relationshipDiv.querySelectorAll('.cardinalitySelect'); // Get cardinality selects
+
   const relationshipName = relationshipNameInput?.value.trim();
 
   if (!relationshipName) return;
@@ -385,6 +471,7 @@ function updateRelationshipDiamond(select) {
 
   if (!relationshipNode) {
     // If relationship doesn't exist yet, try to create it
+    // The createRelationshipDiamond function now has its own guard, so this is safe.
     createRelationshipDiamond(relationshipNameInput);
     return;
   }
@@ -396,6 +483,9 @@ function updateRelationshipDiamond(select) {
   const entity2Name = entitySelects[1]?.value.trim();
   const entity1Participation = participationSelects[0]?.value;
   const entity2Participation = participationSelects[1]?.value;
+  const entity1Cardinality = cardinalitySelects[0]?.value; // Get cardinality values
+  const entity2Cardinality = cardinalitySelects[1]?.value;
+
 
   if (!entity1Name || !entity2Name) return;
 
@@ -420,7 +510,7 @@ function updateRelationshipDiamond(select) {
   // Remove all existing links to this relationship
   const linksToRemove = [];
   diagram.model.linkDataArray.forEach(link => {
-    if (link.to === relationshipNode.key) {
+    if (link.to === relationshipNode.key || link.from === relationshipNode.key) {
       linksToRemove.push(link);
     }
   });
@@ -428,25 +518,166 @@ function updateRelationshipDiamond(select) {
     diagram.model.removeLinkData(link);
   });
 
-  // Add new links from both entities to relationship
+  // Add new links from both entities to relationship WITH CARDINALITY
   diagram.model.addLinkData({
     from: entity1Node.key,
     to: relationshipNode.key,
-    isTotalParticipation: (entity1Participation === "Total") // Set the property based on selection
+    isTotalParticipation: (entity1Participation === "Total"),
+    cardinality: entity1Cardinality // 👈 ADD THIS LINE
   });
 
   diagram.model.addLinkData({
     from: entity2Node.key,
     to: relationshipNode.key,
-    isTotalParticipation: (entity2Participation === "Total") // Set the property based on selection
+    isTotalParticipation: (entity2Participation === "Total"),
+    cardinality: entity2Cardinality // 👈 ADD THIS LINE
   });
 
   diagram.model.commitTransaction("updateRelationship");
 }
 
-// Function to delete relationship from both form and diagram
+// Function 4: addRelationship (ENHANCED)
+// This now creates a clean, styled card matching the entity blocks.
+function addRelationship() {
+  // Get current entities from DOM instead of entityNames Set
+  const allinput = document.querySelectorAll('.entityNameInput');
+  const currentEntityNames = [];
+  allinput.forEach(input => {
+    const val = input.value.trim();
+    if (val !== "") {
+      currentEntityNames.push(val);
+    }
+  });
+
+  if (currentEntityNames.length < 2) {
+    alert("Please create at least 2 entities before adding a relationship.");
+    return;
+  }
+
+  const container = document.getElementById("relationshipsContainer");
+  const relDiv = document.createElement("div");
+  // Added 'relationship-container' class for specific selection
+  relDiv.className = "bg-white border border-gray-200 rounded-lg shadow-sm p-4 mb-4 relationship-container";
+
+  const entityOptions = currentEntityNames.map(name => `<option value="${name}">${name}</option>`).join("");
+
+  relDiv.innerHTML = `
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg font-semibold text-gray-800">New Relationship</h3>
+        <button type="button" 
+            class="p-1.5 rounded-full bg-red-100 text-red-600 hover:bg-red-200"
+            onclick="deleteRelationship(this)">
+            <img src="/img/dustbin.png" class="h-4 w-4" alt="Delete">
+        </button>
+    </div>
+
+    <div class="mb-3">
+        <label class="block text-sm font-medium text-gray-600 mb-1">Relationship Name</label>
+        <input type="text" placeholder="e.g., Works_On"
+            class="relationshipNameInput w-full border border-gray-300 rounded-md shadow-sm text-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500" 
+            onblur="createRelationshipDiamond(this)" />
+    </div>
+    
+    <div class="flex flex-col md:flex-row md:space-x-4 mb-2">
+        <div class="flex-1 mb-4 md:mb-0">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Entity 1</label>
+            <div class="relative">
+                <select class="entitySelect w-full appearance-none border border-gray-300 rounded-lg bg-white shadow-sm text-sm px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150" 
+                        onchange="checkforentities(this); updateRelationshipDiamond(this)">
+                    <option value="">Select Entity</option>
+                    ${entityOptions}
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+            
+            <label class="block text-sm font-medium text-gray-700 mt-3 mb-2">Participation</label>
+            <div class="relative">
+                <select class="participationSelect w-full appearance-none border border-gray-300 rounded-lg bg-white shadow-sm text-sm px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150" 
+                        onchange="updateRelationshipDiamond(this)">
+                    <option value="Partial">Partial</option>
+                    <option value="Total">Total</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+            
+            <label class="block text-sm font-medium text-gray-700 mt-3 mb-2">Cardinality</label>
+            <div class="relative">
+                <select class="cardinalitySelect w-full appearance-none border border-gray-300 rounded-lg bg-white shadow-sm text-sm px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150" 
+                        onchange="updateRelationshipDiamond(this)">
+                    <option>1</option>
+                    <option>N</option>
+                    <option>M</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex-1">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Entity 2</label>
+            <div class="relative">
+                <select class="entitySelect w-full appearance-none border border-gray-300 rounded-lg bg-white shadow-sm text-sm px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150" 
+                        onchange="checkforentities(this); updateRelationshipDiamond(this)">
+                    <option value="">Select Entity</option>
+                    ${entityOptions}
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+            
+            <label class="block text-sm font-medium text-gray-700 mt-3 mb-2">Participation</label>
+            <div class="relative">
+                <select class="participationSelect w-full appearance-none border border-gray-300 rounded-lg bg-white shadow-sm text-sm px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150" 
+                        onchange="updateRelationshipDiamond(this)">
+                    <option value="Partial">Partial</option>
+                    <option value="Total">Total</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+            
+            <label class="block text-sm font-medium text-gray-700 mt-3 mb-2">Cardinality</label>
+            <div class="relative">
+                <select class="cardinalitySelect w-full appearance-none border border-gray-300 rounded-lg bg-white shadow-sm text-sm px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150" 
+                        onchange="updateRelationshipDiamond(this)">
+                    <option>1</option>
+                    <option>N</option>
+                    <option>M</option>
+                </select>
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+  `;
+
+  container.appendChild(relDiv);
+}
+
+// Function 5: deleteRelationship (MODIFIED)
+// Updated to use the new '.relationship-container' class.
 function deleteRelationship(btn) {
-  const relationshipDiv = btn.closest(".border.p-4.rounded.bg-gray-50");
+  const relationshipDiv = btn.closest(".relationship-container"); // Use specific class
   const relationshipNameInput = relationshipDiv.querySelector('.relationshipNameInput');
   const relationshipName = relationshipNameInput?.value.trim();
 
@@ -464,49 +695,60 @@ function deleteRelationship(btn) {
   relationshipDiv.remove();
 }
 
+// Function 1: checkforentities (MODIFIED)
+// This function now returns 'false' if the pair is invalid, and 'true' otherwise.
 function checkforentities(input) {
-  const relationshipDiv = input.closest(".border.p-4.rounded.bg-gray-50");
+  const relationshipDiv = input.closest(".relationship-container"); // Use specific class
   const dropdowns = relationshipDiv.querySelectorAll('.entitySelect');
 
-  if (dropdowns.length === 2) {
-    const val1 = dropdowns[0].value.trim().toLowerCase();
-    const val2 = dropdowns[1].value.trim().toLowerCase();
+  if (dropdowns.length < 2) return true; // Not a pair, can't be invalid
 
-    // skip empty selections
-    if (val1 === "" || val2 === "") return;
+  const val1 = dropdowns[0].value.trim().toLowerCase();
+  const val2 = dropdowns[1].value.trim().toLowerCase();
 
-    // normalize pair so (A,B) == (B,A)
-    const pair = [val1, val2].sort().join("_")
+  // skip empty selections - they aren't "invalid", just incomplete
+  if (val1 === "" || val2 === "") {
+    // Clear styles if one is empty
+    dropdowns.forEach(dropdown => {
+      dropdown.classList.remove("border-red-500", "ring-red-500", "border-green-500", "ring-green-500");
+    });
+    return true; // Allow change, it's not an invalid state
+  }
 
-    // collect all existing pairs from other relationship blocks
-    const allPairs = [];
-    document.querySelectorAll(".border.p-4.rounded.bg-gray-50").forEach(rel => {
-      if (rel !== relationshipDiv) {
-        const selects = rel.querySelectorAll(".entitySelect");
-        if (selects.length === 2) {
-          const v1 = selects[0].value.trim().toLowerCase();
-          const v2 = selects[1].value.trim().toLowerCase();
-          if (v1 !== "" && v2 !== "") {
-            allPairs.push([v1, v2].sort().join("_"));
-          }
+  // normalize pair so (A,B) == (B,A)
+  const pair = [val1, val2].sort().join("_");
+
+  // collect all existing pairs from other relationship blocks
+  const allPairs = [];
+  document.querySelectorAll(".relationship-container").forEach(rel => { // Use specific class
+    if (rel !== relationshipDiv) {
+      const selects = rel.querySelectorAll(".entitySelect");
+      if (selects.length === 2) {
+        const v1 = selects[0].value.trim().toLowerCase();
+        const v2 = selects[1].value.trim().toLowerCase();
+        if (v1 !== "" && v2 !== "") {
+          allPairs.push([v1, v2].sort().join("_"));
         }
       }
-    });
-
-    // Check if this pair already exists elsewhere
-    if (val1 === val2 || allPairs.includes(pair)) {
-      dropdowns.forEach(dropdown => {
-        dropdown.classList.remove("border-green-500", "ring-green-500");
-        dropdown.classList.add("border-red-500", "ring-2", "ring-red-500");
-      });
-    } else {
-      dropdowns.forEach(dropdown => {
-        dropdown.classList.remove("border-red-500", "ring-red-500");
-        dropdown.classList.add("border-green-500", "ring-2", "ring-green-500");
-      });
     }
+  });
+
+  // Check if this pair already exists elsewhere OR is the same entity
+  if (val1 === val2 || allPairs.includes(pair)) {
+    dropdowns.forEach(dropdown => {
+      dropdown.classList.remove("border-green-500", "ring-green-500");
+      dropdown.classList.add("border-red-500", "ring-2", "ring-red-500");
+    });
+    return false; // <-- BUG FIX: Return false
+  } else {
+    dropdowns.forEach(dropdown => {
+      dropdown.classList.remove("border-red-500", "ring-red-500");
+      dropdown.classList.add("border-green-500", "ring-2", "ring-green-500");
+    });
+    return true; // <-- BUG FIX: Return true
   }
 }
+
 
 
 // ------Gojs Logic -----
@@ -706,19 +948,16 @@ diagram.nodeTemplateMap.add("WeakRelationship",
 diagram.linkTemplate =
   $(go.Link,
     { routing: go.Link.Normal, curve: go.Link.JumpOver },
-    // First line (always visible)
-    $(go.Shape,
-      { strokeWidth: 2, stroke: "black" }),
 
-    // Second line for total participation
+    // --- MODIFIED BLOCK ---
+    // Main line: strokeWidth is 4 for Total, 2 for Partial
     $(go.Shape,
-      {
-        strokeWidth: 2,
-        stroke: "black",
-        segmentOffset: new go.Point(0, 5), // Create a small offset
-        visible: false // Initially invisible
-      },
-      new go.Binding("visible", "isTotalParticipation")), // Bind visibility to a new property
+      { stroke: "black" }, // Default color
+      new go.Binding("strokeWidth", "isTotalParticipation", function(total) {
+        return total ? 4 : 2; // 4px if total, 2px if partial
+      })
+    ),
+    // --- END MODIFIED BLOCK ---
 
     // Conditional arrow - only show for entity-attribute connections
     $(go.Shape, {
@@ -740,9 +979,25 @@ diagram.linkTemplate =
           }
         }
         return true; // Show arrow for entity-attribute connections
-      }).ofObject())
-  );
+      }).ofObject()),
 
+      // Cardinality label ON the line near the entity
+    $(go.TextBlock,
+      {
+        segmentIndex: 0,
+        segmentFraction: 0.15, // Position near the start (entity side)
+        segmentOffset: new go.Point(0, 0), // Directly on the line
+        font: "bold 16px sans-serif",
+        stroke: "black",
+        background: "white",
+        margin: 2
+      },
+      new go.Binding("text", "cardinality"),
+      new go.Binding("visible", "cardinality", function(card) {
+        return card ? true : false;
+      }))
+
+  );
 
 // Start with empty model
 diagram.model = new go.GraphLinksModel([], []);
@@ -951,7 +1206,7 @@ function convertAndOpenRelationalPage() {
 
   const tables = {}; // store tables by entity name
   const processedRelationships = new Set();
-  
+
   function getAttributes(entityNode) {
     const attrs = [];
 
@@ -1102,4 +1357,1070 @@ function convertAndOpenRelationalPage() {
 
   // Open relational model page
   window.open("relational.html", "_blank");
+}
+
+
+// ==================== PDF Export Functions (Silent Download) ====================
+
+// Quick PDF Export
+async function exportDiagramToPDF() {
+  try {
+    const { jsPDF } = window.jspdf;
+    
+    // Show loading indicator
+    const originalText = event.target.innerHTML;
+    event.target.innerHTML = '<i data-feather="loader" class="w-4 h-4 animate-spin"></i> Exporting...';
+    feather.replace();
+    
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'px',
+      format: 'a4'
+    });
+
+    const imgData = await new Promise((resolve) => {
+      diagram.makeImageData({
+        background: 'white',
+        returnType: 'string',
+        callback: (img) => resolve(img)
+      });
+    });
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+
+    // Add title
+    pdf.setFontSize(22);
+    pdf.setTextColor(124, 58, 237);
+    pdf.text('Entity Relationship Diagram', 20, 30);
+
+    // Add metadata
+    pdf.setFontSize(10);
+    pdf.setTextColor(100, 100, 100);
+    pdf.text(`Generated: ${new Date().toLocaleString()}`, 20, 45);
+    
+    // Count entities and relationships
+    const entities = diagram.model.nodeDataArray.filter(n => 
+      ["Rectangle", "Strong", "Weak"].includes(n.category)
+    );
+    const relationships = diagram.model.nodeDataArray.filter(n => 
+      n.category?.includes("Relationship")
+    );
+    
+    pdf.text(`Entities: ${entities.length} | Relationships: ${relationships.length}`, 20, 55);
+
+    // Add diagram image
+    const imgProps = pdf.getImageProperties(imgData);
+    const imgWidth = pdfWidth - 40;
+    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+    if (imgHeight > pdfHeight - 90) {
+      const scaledHeight = pdfHeight - 90;
+      const scaledWidth = (imgProps.width * scaledHeight) / imgProps.height;
+      pdf.addImage(imgData, 'PNG', (pdfWidth - scaledWidth) / 2, 70, scaledWidth, scaledHeight);
+    } else {
+      pdf.addImage(imgData, 'PNG', (pdfWidth - imgWidth) / 2, 70, imgWidth, imgHeight);
+    }
+
+    // Add footer
+    pdf.setFontSize(8);
+    pdf.setTextColor(150, 150, 150);
+    pdf.text('ER Model Builder - Enterprise Edition', pdfWidth / 2, pdfHeight - 10, { align: 'center' });
+
+    // Save PDF silently
+    const timestamp = new Date().toISOString().slice(0, 10);
+    pdf.save(`ER_Diagram_${timestamp}.pdf`);
+    
+    // Restore button
+    event.target.innerHTML = originalText;
+    feather.replace();
+    
+  } catch (error) {
+    console.error('Error exporting PDF:', error);
+    // Silent error - just restore button
+    event.target.innerHTML = originalText;
+    feather.replace();
+  }
+}
+
+// ==================== Advanced Multi-page PDF Export with Full Details ====================
+async function exportAdvancedPDF() {
+  try {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'px',
+      format: 'a4'
+    });
+
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+    const nodes = diagram.model.nodeDataArray;
+    const links = diagram.model.linkDataArray;
+
+    // ========== Page 1: Cover Page ==========
+    pdf.setFillColor(124, 58, 237);
+    pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
+    
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(45);
+    pdf.text('ER Diagram', pdfWidth / 2, pdfHeight / 2 - 80, { align: 'center' });
+    
+    pdf.setFontSize(20);
+    pdf.text('Entity Relationship Model', pdfWidth / 2, pdfHeight / 2 - 35, { align: 'center' });
+    
+    pdf.setFontSize(14);
+    pdf.text(`Generated: ${new Date().toLocaleString()}`, pdfWidth / 2, pdfHeight / 2 + 10, { align: 'center' });
+    
+    // Statistics
+    const entities = nodes.filter(n => ["Rectangle", "Strong", "Weak"].includes(n.category));
+    const relationships = nodes.filter(n => n.category?.includes("Relationship"));
+    const attributes = nodes.filter(n => ["Ellipse", "Primary Key", "Multi Valued", "Derived"].includes(n.category));
+    
+    pdf.setFontSize(16);
+    pdf.text(`${entities.length} Entities | ${relationships.length} Relationships | ${attributes.length} Attributes`, 
+      pdfWidth / 2, pdfHeight / 2 + 50, { align: 'center' });
+
+    // ========== Page 2: ER Diagram ==========
+    pdf.addPage();
+    
+    const imgData = await new Promise((resolve) => {
+      diagram.makeImageData({
+        background: 'white',
+        returnType: 'string',
+        callback: (img) => resolve(img)
+      });
+    });
+
+    pdf.setFontSize(22);
+    pdf.setTextColor(124, 58, 237);
+    pdf.text('Entity Relationship Diagram', pdfWidth / 2, 30, { align: 'center' });
+
+    const imgProps = pdf.getImageProperties(imgData);
+    const imgWidth = pdfWidth - 40;
+    const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+    if (imgHeight > pdfHeight - 80) {
+      const scaledHeight = pdfHeight - 80;
+      const scaledWidth = (imgProps.width * scaledHeight) / imgProps.height;
+      pdf.addImage(imgData, 'PNG', (pdfWidth - scaledWidth) / 2, 60, scaledWidth, scaledHeight);
+    } else {
+      pdf.addImage(imgData, 'PNG', (pdfWidth - imgWidth) / 2, 60, imgWidth, imgHeight);
+    }
+
+    // Add footer
+    pdf.setFontSize(8);
+    pdf.setTextColor(150, 150, 150);
+    pdf.text('ER Model Builder - Enterprise Edition', pdfWidth / 2, pdfHeight - 10, { align: 'center' });
+
+    // ========== Page 3: Summary Statistics ==========
+    pdf.addPage();
+    pdf.setFontSize(24);
+    pdf.setTextColor(124, 58, 237);
+    pdf.text('Diagram Summary', 20, 35);
+
+    let yPos = 70;
+    pdf.setFontSize(12);
+    pdf.setTextColor(0, 0, 0);
+
+    // Count different types
+    const strongEntities = nodes.filter(n => n.category === "Strong" || n.category === "Rectangle").length;
+    const weakEntities = nodes.filter(n => n.category === "Weak").length;
+    const primaryKeys = nodes.filter(n => n.category === "Primary Key").length;
+    const multiValued = nodes.filter(n => n.category === "Multi Valued").length;
+    const derived = nodes.filter(n => n.category === "Derived").length;
+    const composite = nodes.filter(n => {
+      const hasChildren = links.some(l => l.from === n.key && 
+        nodes.find(child => child.key === l.to && child.category === "Ellipse"));
+      return hasChildren && n.category === "Ellipse";
+    }).length;
+
+    // Draw statistics table
+    const stats = [
+      { label: 'Total Entities', value: entities.length, color: [124, 58, 237] },
+      { label: '  • Strong Entities', value: strongEntities, color: [100, 100, 100] },
+      { label: '  • Weak Entities', value: weakEntities, color: [100, 100, 100] },
+      { label: 'Total Relationships', value: relationships.length, color: [124, 58, 237] },
+      { label: 'Total Attributes', value: attributes.length, color: [124, 58, 237] },
+      { label: '  • Primary Keys', value: primaryKeys, color: [100, 100, 100] },
+      { label: '  • Multi-valued', value: multiValued, color: [100, 100, 100] },
+      { label: '  • Derived', value: derived, color: [100, 100, 100] },
+      { label: '  • Composite', value: composite, color: [100, 100, 100] },
+      { label: 'Total Connections', value: links.length, color: [124, 58, 237] }
+    ];
+
+    stats.forEach(stat => {
+      pdf.setTextColor(...stat.color);
+      pdf.setFontSize(stat.label.startsWith('  •') ? 11 : 13);
+      const isBold = !stat.label.startsWith('  •');
+      pdf.setFont(undefined, isBold ? 'bold' : 'normal');
+      
+      pdf.text(stat.label, 40, yPos);
+      pdf.text(String(stat.value), pdfWidth - 80, yPos, { align: 'right' });
+      
+      yPos += 22;
+      
+      if (yPos > pdfHeight - 50) {
+        pdf.addPage();
+        yPos = 50;
+      }
+    });
+
+    // ========== Page 4+: Detailed Entity Information ==========
+    pdf.addPage();
+    pdf.setFontSize(24);
+    pdf.setTextColor(124, 58, 237);
+    pdf.text('Entity Details', 20, 35);
+
+    yPos = 70;
+
+    entities.forEach((entity, idx) => {
+      if (yPos > pdfHeight - 150) {
+        pdf.addPage();
+        yPos = 50;
+      }
+
+      // Entity name with box
+      pdf.setFillColor(240, 240, 255);
+      pdf.rect(20, yPos - 15, pdfWidth - 40, 25, 'F');
+      
+      pdf.setFontSize(16);
+      pdf.setTextColor(124, 58, 237);
+      pdf.setFont(undefined, 'bold');
+      pdf.text(`${idx + 1}. ${entity.text}`, 30, yPos);
+      
+      yPos += 30;
+
+      // Entity type
+      pdf.setFontSize(11);
+      pdf.setTextColor(80, 80, 80);
+      pdf.setFont(undefined, 'normal');
+      pdf.text(`Type: ${entity.category === "Rectangle" ? "Strong Entity" : entity.category + " Entity"}`, 40, yPos);
+      yPos += 20;
+
+      // Get attributes for this entity
+      const entityAttributes = links
+        .filter(l => l.from === entity.key || l.to === entity.key)
+        .map(l => {
+          const attrKey = l.from === entity.key ? l.to : l.from;
+          return nodes.find(n => n.key === attrKey);
+        })
+        .filter(n => n && ["Ellipse", "Primary Key", "Multi Valued", "Derived"].includes(n.category));
+
+      if (entityAttributes.length > 0) {
+        pdf.setFontSize(12);
+        pdf.setTextColor(0, 0, 0);
+        pdf.setFont(undefined, 'bold');
+        pdf.text('Attributes:', 40, yPos);
+        yPos += 18;
+
+        entityAttributes.forEach(attr => {
+          const subAttributes = links
+            .filter(l => l.from === attr.key)
+            .map(l => nodes.find(n => n.key === l.to && n.category === "Ellipse"))
+            .filter(Boolean);
+
+          pdf.setFontSize(11);
+          pdf.setTextColor(60, 60, 60);
+          pdf.setFont(undefined, 'normal');
+          
+          let attrType = '';
+          if (attr.category === "Primary Key") attrType = ' [PK]';
+          else if (attr.category === "Multi Valued") attrType = ' [Multi-valued]';
+          else if (attr.category === "Derived") attrType = ' [Derived]';
+          else if (subAttributes.length > 0) attrType = ' [Composite]';
+
+          pdf.text(`  • ${attr.text}${attrType}`, 50, yPos);
+          yPos += 16;
+
+          if (subAttributes.length > 0) {
+            subAttributes.forEach(subAttr => {
+              pdf.setFontSize(10);
+              pdf.setTextColor(100, 100, 100);
+              pdf.text(`     ◦ ${subAttr.text}`, 60, yPos);
+              yPos += 14;
+            });
+          }
+        });
+      } else {
+        pdf.setFontSize(11);
+        pdf.setTextColor(150, 150, 150);
+        pdf.setFont(undefined, 'italic');
+        pdf.text('No attributes defined', 40, yPos);
+        yPos += 18;
+      }
+
+      // Get relationships for this entity
+      const entityRelationships = links
+        .filter(l => l.from === entity.key || l.to === entity.key)
+        .map(l => {
+          const relKey = l.from === entity.key ? l.to : l.from;
+          const relNode = nodes.find(n => n.key === relKey && n.category?.includes("Relationship"));
+          if (!relNode) return null;
+          
+          const otherLink = links.find(link => 
+            (link.from === relKey || link.to === relKey) && 
+            link.from !== entity.key && link.to !== entity.key
+          );
+          
+          const otherEntityKey = otherLink ? (otherLink.from === relKey ? otherLink.to : otherLink.from) : null;
+          const otherEntity = nodes.find(n => n.key === otherEntityKey);
+          
+          return {
+            name: relNode.text,
+            type: relNode.category,
+            otherEntity: otherEntity?.text || 'Unknown',
+            cardinality: l.cardinality || 'N/A',
+            participation: l.isTotalParticipation ? 'Total' : 'Partial'
+          };
+        })
+        .filter(Boolean);
+
+      if (entityRelationships.length > 0) {
+        yPos += 5;
+        pdf.setFontSize(12);
+        pdf.setTextColor(0, 0, 0);
+        pdf.setFont(undefined, 'bold');
+        pdf.text('Relationships:', 40, yPos);
+        yPos += 18;
+
+        entityRelationships.forEach(rel => {
+          pdf.setFontSize(11);
+          pdf.setTextColor(60, 60, 60);
+          pdf.setFont(undefined, 'normal');
+          
+          const relType = rel.type === "WeakRelationship" ? "Identifying" : "Regular";
+          pdf.text(`  • ${rel.name} (${relType})`, 50, yPos);
+          yPos += 15;
+          
+          pdf.setFontSize(10);
+          pdf.setTextColor(100, 100, 100);
+          pdf.text(`    Connected to: ${rel.otherEntity}`, 60, yPos);
+          yPos += 13;
+          pdf.text(`    Cardinality: ${rel.cardinality} | Participation: ${rel.participation}`, 60, yPos);
+          yPos += 16;
+        });
+      }
+
+      yPos += 15;
+    });
+
+    // ========== Page: Relationship Details ==========
+    if (relationships.length > 0) {
+      pdf.addPage();
+      pdf.setFontSize(24);
+      pdf.setTextColor(124, 58, 237);
+      pdf.text('Relationship Details', 20, 35);
+
+      yPos = 70;
+
+      relationships.forEach((rel, idx) => {
+        if (yPos > pdfHeight - 120) {
+          pdf.addPage();
+          yPos = 50;
+        }
+
+        // Relationship name with box
+        pdf.setFillColor(255, 250, 240);
+        pdf.rect(20, yPos - 15, pdfWidth - 40, 25, 'F');
+        
+        pdf.setFontSize(16);
+        pdf.setTextColor(124, 58, 237);
+        pdf.setFont(undefined, 'bold');
+        pdf.text(`${idx + 1}. ${rel.text}`, 30, yPos);
+        
+        yPos += 30;
+
+        // Relationship type
+        pdf.setFontSize(11);
+        pdf.setTextColor(80, 80, 80);
+        pdf.setFont(undefined, 'normal');
+        const relType = rel.category === "WeakRelationship" ? "Identifying Relationship" : "Regular Relationship";
+        pdf.text(`Type: ${relType}`, 40, yPos);
+        yPos += 20;
+
+        // Find connected entities
+        const connectedLinks = links.filter(l => l.from === rel.key || l.to === rel.key);
+        const connectedEntities = connectedLinks.map(l => {
+          const entityKey = l.from === rel.key ? l.to : l.from;
+          const entityNode = nodes.find(n => n.key === entityKey && 
+            ["Rectangle", "Strong", "Weak"].includes(n.category));
+          return entityNode ? {
+            name: entityNode.text,
+            cardinality: l.cardinality || 'N/A',
+            participation: l.isTotalParticipation ? 'Total' : 'Partial'
+          } : null;
+        }).filter(Boolean);
+
+        if (connectedEntities.length > 0) {
+          pdf.setFontSize(12);
+          pdf.setTextColor(0, 0, 0);
+          pdf.setFont(undefined, 'bold');
+          pdf.text('Connected Entities:', 40, yPos);
+          yPos += 18;
+
+          connectedEntities.forEach(ent => {
+            pdf.setFontSize(11);
+            pdf.setTextColor(60, 60, 60);
+            pdf.setFont(undefined, 'normal');
+            pdf.text(`  • ${ent.name}`, 50, yPos);
+            yPos += 15;
+            pdf.setFontSize(10);
+            pdf.setTextColor(100, 100, 100);
+            pdf.text(`    Cardinality: ${ent.cardinality} | Participation: ${ent.participation}`, 60, yPos);
+            yPos += 18;
+          });
+        }
+
+        // Relationship attributes
+        const relAttributes = links
+          .filter(l => l.from === rel.key)
+          .map(l => nodes.find(n => n.key === l.to && 
+            ["Ellipse", "Primary Key", "Multi Valued", "Derived"].includes(n.category)))
+          .filter(Boolean);
+
+        if (relAttributes.length > 0) {
+          pdf.setFontSize(12);
+          pdf.setTextColor(0, 0, 0);
+          pdf.setFont(undefined, 'bold');
+          pdf.text('Attributes:', 40, yPos);
+          yPos += 18;
+
+          relAttributes.forEach(attr => {
+            pdf.setFontSize(11);
+            pdf.setTextColor(60, 60, 60);
+            pdf.setFont(undefined, 'normal');
+            pdf.text(`  • ${attr.text}`, 50, yPos);
+            yPos += 16;
+          });
+        }
+
+        yPos += 15;
+      });
+    }
+
+    // Save PDF silently
+    const timestamp = new Date().toISOString().slice(0, 10);
+    pdf.save(`ER_Diagram_Complete_${timestamp}.pdf`);
+    
+  } catch (error) {
+    console.error('Error exporting advanced PDF:', error);
+  }
+}
+
+// Full Page Screenshot Export
+async function exportPageToPDF() {
+  try {
+    const { jsPDF } = window.jspdf;
+    const diagramDiv = document.getElementById('myDiagramDiv');
+    
+    const canvas = await html2canvas(diagramDiv, {
+      scale: 2,
+      backgroundColor: '#ffffff',
+      logging: false
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: canvas.width > canvas.height ? 'landscape' : 'portrait',
+      unit: 'px',
+      format: [canvas.width, canvas.height]
+    });
+
+    pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+    
+    const timestamp = new Date().toISOString().slice(0, 10);
+    pdf.save(`ER_Diagram_Full_${timestamp}.pdf`);
+    
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+
+// --- ER TO RELATIONAL & SQL CONVERSION LOGIC ---
+
+/**
+ * HELPER FUNCTION
+ * Provides simple data type inference based on attribute names.
+ */
+function inferDataType(attrName) {
+  const name = attrName.toLowerCase();
+  
+  if (name.endsWith('_id') || name === 'id' || name.startsWith('num_') || name.endsWith('count')) {
+    return 'INT';
+  }
+  if (name.includes('date') || name.endsWith('_at')) {
+    return 'DATETIME';
+  }
+  if (name.startsWith('is_') || name.startsWith('has_')) {
+    return 'BOOLEAN'; // Or TINYINT(1) for MySQL
+  }
+  if (name.includes('price') || name.includes('amount') || name.includes('salary')) {
+    return 'DECIMAL(10, 2)';
+  }
+  if (name.includes('text') || name.includes('description') || name.includes('comment')) {
+    return 'TEXT';
+  }
+  return 'VARCHAR(255)';
+}
+
+/**
+ * HELPER FUNCTION
+ * Finds all attributes for a given entity or relationship node.
+ */
+function getAttributes(nodeKey, allNodes, allLinks) {
+  const attrs = [];
+  allLinks.forEach(link => {
+    let attrKey = null;
+    if (link.from === nodeKey) attrKey = link.to;
+    if (link.to === nodeKey) attrKey = link.from;
+    
+    if (attrKey) {
+      const attrNode = allNodes.find(n => n.key === attrKey);
+      
+      // Stop if the linked node is not an attribute
+      if (!attrNode || !["Ellipse", "Primary Key", "Multi Valued", "Derived"].includes(attrNode.category)) {
+        return;
+      }
+
+      // Ignore derived attributes
+      if (attrNode.category === "Derived") return;
+
+      // Check for composite attributes
+      const subLinks = allLinks.filter(l => l.from === attrNode.key && l.to !== nodeKey);
+      
+      if (subLinks.length > 0 && attrNode.category === "Ellipse") {
+        // It's composite: expand its children
+        subLinks.forEach(subLink => {
+          const subAttrNode = allNodes.find(n => n.key === subLink.to);
+          if (subAttrNode && subAttrNode.category === "Ellipse") { // Only allow simple sub-attributes
+            const attrName = `${attrNode.text}_${subAttrNode.text}`;
+            attrs.push({
+              name: attrName,
+              type: inferDataType(attrName),
+              category: "Ellipse",
+              isPartialKey: false
+            });
+          }
+        });
+      } else {
+        // It's a simple, PK, or multi-valued attribute
+        attrs.push({
+          name: attrNode.text,
+          type: inferDataType(attrNode.text),
+          category: attrNode.category,
+          // Check if it's a partial key of a weak entity
+          isPartialKey: attrNode.category === "Primary Key"
+        });
+      }
+    }
+  });
+  return attrs;
+}
+
+/**
+ * REBUILT ROBUST FUNCTION
+ * This function builds the complete relational schema as a JavaScript object.
+ * It now correctly handles 1:1, 1:N, M:N, and Weak Entity relationships.
+ *
+ * --- FIX APPLIED ---
+ * The logic for adding a default Primary Key (Step 1) now checks
+ * if a column with that name (case-insensitive) already exists.
+ * If it does, it promotes the existing column to PK.
+ */
+function buildRelationalSchema() {
+  const nodes = diagram.model.nodeDataArray;
+  const links = diagram.model.linkDataArray;
+  const tables = {};
+  const processedRelationships = new Set();
+
+  // --- Step 1: Process all Entities (Strong and Weak) ---
+  // Create initial table structures and identify primary/partial keys.
+  nodes.forEach(node => {
+    if (["Rectangle", "Strong", "Weak"].includes(node.category)) {
+      const attributes = getAttributes(node.key, nodes, links);
+      let primaryKey = null;
+      let partialKey = null;
+      const columns = [];
+
+      attributes.forEach(attr => {
+        // Multi-valued attributes are handled in Step 3
+        if (attr.category === "Multi Valued") return;
+
+        columns.push({
+          name: attr.name,
+          type: attr.type,
+          isNotNull: attr.isPartialKey, // Partial keys must be NOT NULL
+          isUnique: false
+        });
+        
+        if (attr.isPartialKey) {
+          partialKey = attr.name;
+        }
+      });
+      
+      if (node.category === "Weak") {
+        // Weak entities use their partial key for now.
+        // It will be combined with the owner's PK in Step 2.
+        primaryKey = partialKey;
+      } else {
+        // Strong entities: find explicit PK or create a default one
+        primaryKey = columns.find(c => c.name === partialKey)?.name;
+        
+        // --- MODIFIED BLOCK ---
+        if (!primaryKey) {
+            const defaultPkName = node.text.toLowerCase() + "_id";
+            
+            // Check if a column with this name (or case-variant) already exists
+            const existingCol = columns.find(c => c.name.toLowerCase() === defaultPkName);
+            
+            if (existingCol) {
+                // A column like "Course_id" or "course_id" already exists.
+                // Promote it to be the Primary Key.
+                existingCol.isNotNull = true;
+                existingCol.isUnique = true; // PKs must be unique
+                primaryKey = existingCol.name;
+            } else {
+                // No existing column, so create the default one
+                columns.unshift({
+                    name: defaultPkName,
+                    type: "INT",
+                    isNotNull: true,
+                    isUnique: true
+                });
+                primaryKey = defaultPkName;
+            }
+        }
+        // --- END MODIFIED BLOCK ---
+      }
+
+      // Set explicit NOT NULL for the final PK
+      const pkCol = columns.find(c => c.name === primaryKey);
+      if (pkCol) pkCol.isNotNull = true;
+      
+      tables[node.text] = {
+        tableName: node.text,
+        columns: columns,
+        primaryKey: primaryKey,
+        foreignKeys: []
+      };
+    }
+  });
+
+  // --- Step 2: Process all Relationships ---
+  // This loop now handles weak, M:N, 1:N, and 1:1 relationships.
+  nodes.forEach(relNode => {
+    if (!relNode.category?.includes("Relationship") || processedRelationships.has(relNode.key)) {
+      return;
+    }
+
+    const relLinks = links.filter(l => l.from === relNode.key || l.to === relNode.key);
+    const connectedEntities = relLinks.map(l => {
+      const entityKey = (l.from === relNode.key) ? l.to : l.from;
+      const entityNode = nodes.find(n => n.key === entityKey);
+      // Return both node and its link properties (cardinality, participation)
+      return { node: entityNode, link: l };
+    }).filter(e => e.node && ["Rectangle", "Strong", "Weak"].includes(e.node.category));
+
+    if (connectedEntities.length < 2) return; // Skip incomplete relationships
+
+    const [e1, e2] = connectedEntities;
+    const card1 = e1.link.cardinality;
+    const card2 = e2.link.cardinality;
+    
+    const table1 = tables[e1.node.text];
+    const table2 = tables[e2.node.text];
+    
+    const relAttributes = getAttributes(relNode.key, nodes, links)
+                            .filter(attr => attr.category !== "Multi Valued"); // No MVs on relationships
+
+    // Rule 1: Weak Relationship (Identifying)
+    if (relNode.category === "WeakRelationship") {
+      // Identify owner (Strong) and weak entity
+      const owner = (e1.node.category === "Weak") ? e2 : e1;
+      const weak = (e1.node.category === "Weak") ? e1 : e2;
+      const ownerTable = tables[owner.node.text];
+      const weakTable = tables[weak.node.text];
+      
+      const ownerPk = ownerTable.primaryKey;
+      const weakPartialPk = weakTable.primaryKey; // This is just the partial key
+      
+      const ownerPkCol = ownerTable.columns.find(c => c.name === ownerPk);
+      const fkColName = `${owner.node.text}_${ownerPk}`;
+
+      // Add owner's PK as a column to the weak table
+      weakTable.columns.push({
+        name: fkColName,
+        type: ownerPkCol.type,
+        isNotNull: true, // FK part of a PK is always NOT NULL
+        isUnique: false
+      });
+
+      // Create the composite PK: (owner_pk, partial_pk)
+      weakTable.primaryKey = [fkColName, weakPartialPk];
+      
+      // Add the FK constraint
+      weakTable.foreignKeys.push({
+        column: fkColName,
+        referencesTable: ownerTable.tableName,
+        referencesColumn: ownerPk
+        // Consider adding ON DELETE CASCADE
+      });
+      
+    }
+    // Rule 2: M:N Relationship
+    else if ((card1 === 'N' || card1 === 'M') && (card2 === 'N' || card2 === 'M')) {
+      const pk1 = table1.primaryKey;
+      const pk2 = table2.primaryKey;
+      const pk1Col = table1.columns.find(c => c.name === pk1);
+      const pk2Col = table2.columns.find(c => c.name === pk2);
+      
+      const fkColName1 = `${table1.tableName}_${pk1}`;
+      const fkColName2 = `${table2.tableName}_${pk2}`;
+
+      const newTable = {
+        tableName: relNode.text,
+        columns: [
+          { name: fkColName1, type: pk1Col.type, isNotNull: true, isUnique: false },
+          { name: fkColName2, type: pk2Col.type, isNotNull: true, isUnique: false },
+          ...relAttributes // Add attributes from the relationship
+        ],
+        primaryKey: [fkColName1, fkColName2], // Composite PK
+        foreignKeys: [
+          { column: fkColName1, referencesTable: table1.tableName, referencesColumn: pk1 },
+          { column: fkColName2, referencesTable: table2.tableName, referencesColumn: pk2 }
+        ]
+      };
+      tables[newTable.tableName] = newTable;
+      
+    }
+    // Rule 3: 1:N or 1:1 Relationship
+    else {
+      let oneSide, manySide;
+
+      if ((card1 === 'N' || card1 === 'M') && card2 === '1') {
+        oneSide = e2;
+        manySide = e1;
+      } else {
+        // Default to e1 as 'one' side (covers 1-N and 1-1)
+        oneSide = e1;
+        manySide = e2;
+      }
+
+      const oneTable = tables[oneSide.node.text];
+      const manyTable = tables[manySide.node.text];
+      const onePk = oneTable.primaryKey;
+      const onePkCol = oneTable.columns.find(c => c.name === onePk);
+
+      const fkColName = `${oneTable.tableName}_${onePk}`;
+      
+      // Add 'one' side's PK as a foreign key column in the 'many' side's table
+      manyTable.columns.push({
+        name: fkColName,
+        type: onePkCol.type,
+        // Total participation on the 'many' side means the FK cannot be null
+        isNotNull: manySide.link.isTotalParticipation,
+        // If it's a 1:1 relationship, the FK must also be unique
+        isUnique: (card1 === '1' && card2 === '1')
+      });
+
+      // Add the FK constraint
+      manyTable.foreignKeys.push({
+        column: fkColName,
+        referencesTable: oneTable.tableName,
+        referencesColumn: onePk
+      });
+      
+      // Add relationship attributes to the 'many' side table
+      manyTable.columns.push(...relAttributes);
+    }
+
+    processedRelationships.add(relNode.key);
+  });
+  
+  // --- Step 3: Process Multi-valued Attributes ---
+  nodes.forEach(node => {
+    if (node.category === "Multi Valued") {
+      // Find its parent entity
+      const parentLink = links.find(l => l.to === node.key);
+      if (!parentLink) return;
+      
+      const parentNode = nodes.find(n => n.key === parentLink.from);
+      if (!parentNode || !tables[parentNode.text]) return; // Not attached to a valid table
+
+      const parentTable = tables[parentNode.text];
+      const parentPk = parentTable.primaryKey;
+      const parentPkCol = parentTable.columns.find(c => c.name === parentPk);
+      
+      const mvTableName = `${parentTable.tableName}_${node.text}`;
+      const parentFkColName = `${parentTable.tableName}_${parentPk}`;
+
+      const mvTable = {
+        tableName: mvTableName,
+        columns: [
+          { name: parentFkColName, type: parentPkCol.type, isNotNull: true, isUnique: false },
+          { name: node.text, type: inferDataType(node.text), isNotNull: true, isUnique: false }
+        ],
+        primaryKey: [parentFkColName, node.text], // Composite PK
+        foreignKeys: [{
+          column: parentFkColName,
+          referencesTable: parentTable.tableName,
+          referencesColumn: parentPk
+          // Consider adding ON DELETE CASCADE
+        }]
+      };
+
+      tables[mvTableName] = mvTable;
+    }
+  });
+
+  return tables;
+}
+
+/**
+ * UPDATED SQL Generation Function
+ * Converts the schema object into a SQL string.
+ *
+ * --- MODIFIED ---
+ * Now calls the new `generateDummyData` helper for
+ * context-aware sample INSERT statements.
+ */
+function generateSQL() {
+  const tables = buildRelationalSchema();
+  let sqlOutput = "/* --- Generated SQL from ER Model Builder --- */\n\n";
+
+  for (const tableName in tables) {
+    const table = tables[tableName];
+    let columnDefinitions = [];
+    
+    sqlOutput += `CREATE TABLE \`${tableName}\` (\n`;
+
+    // Add Columns
+    table.columns.forEach(column => {
+      let colString = `  \`${column.name}\` ${column.type}`;
+      
+      // Handle single-column Primary Key
+      if (typeof table.primaryKey === 'string' && column.name === table.primaryKey) {
+        colString += " PRIMARY KEY";
+      }
+
+      // Add NOT NULL constraint (from PK or total participation)
+      if (column.isNotNull) {
+        colString += " NOT NULL";
+      }
+
+      // Add UNIQUE constraint (for 1:1 relationships)
+      if (column.isUnique) {
+        colString += " UNIQUE";
+      }
+
+      columnDefinitions.push(colString);
+    });
+
+    // Handle composite Primary Key
+    if (Array.isArray(table.primaryKey)) {
+      const pkCols = table.primaryKey.map(pk => `\`${pk}\``).join(", ");
+      columnDefinitions.push(`  PRIMARY KEY (${pkCols})`);
+    }
+
+    // Add Foreign Keys
+    if (table.foreignKeys && table.foreignKeys.length > 0) {
+      table.foreignKeys.forEach(fk => {
+        let fkString = `  FOREIGN KEY (\`${fk.column}\`) REFERENCES \`${fk.referencesTable}\`(\`${fk.referencesColumn}\`)`;
+        // Optional: Add ON DELETE / ON UPDATE actions
+        // fkString += " ON DELETE CASCADE"; // e.g., for weak entities
+        columnDefinitions.push(fkString);
+      });
+    }
+
+    // Join all definitions
+    sqlOutput += columnDefinitions.join(",\n");
+    sqlOutput += `\n);\n\n`;
+
+    // --- MODIFIED BLOCK ---
+    
+    // Generate dummy INSERT statements as a template
+    const columnNames = table.columns.map(col => `\`${col.name}\``).join(", ");
+    
+    sqlOutput += `-- Example INSERTs for \`${tableName}\`:\n`;
+
+    // Generate 3 sample statements
+    for (let i = 1; i <= 3; i++) {
+        // NEW: Call the smart data generator for each column
+        const placeholders = table.columns.map(col => {
+            return generateDummyData(col.name, col.type, i);
+        }).join(", ");
+
+        // Add the commented-out INSERT statement
+        sqlOutput += `-- INSERT INTO \`${tableName}\` (${columnNames}) VALUES (${placeholders});\n`;
+    }
+    sqlOutput += `\n\n`; // Add the final spacing
+    
+    // --- END OF MODIFIED BLOCK ---
+  }
+
+  return sqlOutput;
+}
+
+/**
+ * NEW HELPER FUNCTION
+ * Generates context-aware dummy data based on column name and type.
+ */
+function generateDummyData(columnName, dataType, index) {
+    const name = columnName.toLowerCase();
+    const i = index - 1; // 0-based index for arrays
+
+    // Sample data arrays (expand these as you like)
+    const firsts = ['John', 'Jane', 'Peter'];
+    const lasts = ['Doe', 'Smith', 'Jones'];
+    const cities = ['New York', 'London', 'Tokyo'];
+    const jobs = ['Developer', 'Manager', 'Analyst'];
+
+    // --- Name-based Logic ---
+    if (name.includes('name')) {
+        if (name.includes('first')) return `'${firsts[i % firsts.length]}'`;
+        if (name.includes('last')) return `'${lasts[i % lasts.length]}'`;
+        return `'${firsts[i % firsts.length]} ${lasts[i % lasts.length]}'`;
+    }
+    if (name.includes('email')) {
+        return `'${firsts[i % firsts.length].toLowerCase()}.${lasts[i % lasts.length].toLowerCase()}@example.com'`;
+    }
+    if (name.includes('age')) {
+        return 25 + (i * 5); // e.g., 25, 30, 35
+    }
+    if (name.includes('salary')) {
+        return (50000 + (i * 15000)).toFixed(2); // e.g., 50000.00, 65000.00, 80000.00
+    }
+    if (name.includes('city')) {
+        return `'${cities[i % cities.length]}'`;
+    }
+    if (name.includes('address') && !name.includes('email')) {
+        return `'${100 + i} Main St'`; // e.g., 101 Main St, 102 Main St
+    }
+    if (name.includes('job') || name.includes('title')) {
+        return `'${jobs[i % jobs.length]}'`;
+    }
+    if (name.startsWith('is_') || name.startsWith('has_')) {
+        return (i % 2 === 0) ? 'true' : 'false'; // Alternates true, false, true
+    }
+    if (name.includes('date') || name.endsWith('_at')) {
+        return `'2025-01-0${index}'`; // e.g., '2025-01-01'
+    }
+    if (name.endsWith('_id') || name.endsWith('id')) {
+        return index; // 1, 2, 3
+    }
+
+    // --- Type-based Fallback ---
+    if (dataType.includes('INT')) return index;
+    if (dataType.includes('DECIMAL')) return (10.50 * index).toFixed(2);
+    if (dataType.includes('BOOLEAN')) return (i % 2 === 0) ? 'true' : 'false';
+    if (dataType.includes('DATE') || dataType.includes('TIME')) return `'2025-01-0${index}'`;
+    
+    // Default fallback
+    return `'value_${index}'`;
+}
+
+// --- SQL MODAL UI FUNCTIONS ---
+
+/**
+ * NEW UI FUNCTION
+ * This is the function your button should call.
+ * It handles the loading and display of the SQL modal.
+ */
+function handleGenerateSQL() {
+  showLoadingModal("Generating SQL...");
+  
+  // Use a timeout to allow the loading modal to render
+  setTimeout(() => {
+    try {
+      const sqlCode = generateSQL(); // Calls the function you already have
+      hideLoadingModal();
+      showSQLModal(sqlCode);
+    } catch (error) {
+      hideLoadingModal();
+      console.error("Error generating SQL:", error);
+      alert("An error occurred while generating the SQL code. Check the console for details.");
+    }
+  }, 300); // 300ms delay
+}
+
+/**
+ * NEW UI FUNCTION
+ * This creates and shows the modal for displaying the SQL code.
+ */
+function showSQLModal(sqlCode) {
+  // Simple syntax highlighting (keywords)
+  const keywords = ['CREATE', 'TABLE', 'PRIMARY', 'KEY', 'FOREIGN', 'REFERENCES', 'INT', 'VARCHAR', 'NOT', 'NULL', 'DECIMAL', 'DATETIME', 'BOOLEAN', 'TEXT', 'UNIQUE'];
+  let highlightedCode = sqlCode.replace(
+    new RegExp(`\\b(${keywords.join('|')})\\b`, 'g'),
+    '<span class="text-blue-500 font-bold">$1</span>'
+  );
+  highlightedCode = highlightedCode.replace(/(`[^`]+`)/g, '<span class="text-purple-500">$1</span>'); // Table/col names
+  highlightedCode = highlightedCode.replace(/(\/\*.*\*\/)/g, '<span class="text-gray-400">$1</span>'); // Comments
+
+  const modal = document.createElement('div');
+  modal.id = 'sqlModal';
+  modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4';
+  modal.style.animation = 'fadeIn 0.2s ease-out';
+
+  modal.innerHTML = `
+    <div class="absolute inset-0 bg-black bg-opacity-60" onclick="closeSQLModal()"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 flex flex-col" style="animation: slideIn 0.3s ease-out; max-height: 80vh;">
+      <div class="flex items-center justify-between p-4 border-b border-gray-200">
+        <div class="flex items-center gap-3">
+          <i data-feather="database" class="w-6 h-6 text-blue-600"></i>
+          <h3 class="text-xl font-bold text-gray-800">Generated SQL Code</h3>
+        </div>
+        <button onclick="closeSQLModal()" class="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600">
+          <i data-feather="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      
+      <div class="p-4 flex-1 overflow-y-auto">
+        <pre class="bg-slate-900 text-white p-4 rounded-lg custom-scrollbar overflow-x-auto" style="font-family: 'Courier New', Courier, monospace; font-size: 14px; line-height: 1.6;"><code>${highlightedCode}</code></pre>
+      </div>
+      
+      <div class="flex gap-3 p-4 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+        <button onclick="copySqlToClipboard()" 
+          class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-all flex items-center justify-center gap-2">
+          <i data-feather="copy" class="w-4 h-4"></i>
+          Copy to Clipboard
+        </button>
+        <button onclick="closeSQLModal()" 
+          class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-all">
+          Close
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  feather.replace();
+}
+
+/**
+ * NEW UI HELPER
+ * Closes the SQL modal.
+ */
+function closeSQLModal() {
+  const modal = document.getElementById('sqlModal');
+  if (modal) {
+    modal.style.animation = 'fadeOut 0.2s ease-out';
+    setTimeout(() => modal.remove(), 200);
+  }
+}
+
+/**
+ * NEW UI HELPER
+ * Copies the SQL code to the clipboard.
+ */
+function copySqlToClipboard() {
+    const sqlCode = generateSQL(); // Regenerate plain text
+    navigator.clipboard.writeText(sqlCode).then(() => {
+        alert('SQL code copied to clipboard!');
+    }, (err) => {
+        alert('Failed to copy text.');
+        console.error('Clipboard copy failed:', err);
+    });
 }

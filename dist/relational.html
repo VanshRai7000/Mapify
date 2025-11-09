@@ -9,7 +9,7 @@
     <!-- GoJS -->
     <script src="https://unpkg.com/gojs/release/go-debug.js"></script>
 
-    <link href="/dist/output.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <!-- Feather Icons -->
     <script src="https://unpkg.com/feather-icons"></script>
 
@@ -44,9 +44,22 @@
         <div id="relationalDiagramDiv" class="w-full h-full rounded-xl shadow-lg bg-gray-50"></div>
     </main>
 
+    <footer class="bg-gray-900 text-gray-400 px-6 py-4 border-t border-gray-700 w-full">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="text-sm">
+                <span class="font-medium text-gray-300">Relational Model Viewer</span> | © 2025 All Rights Reserved.
+            </div>
+            <div class="flex items-center gap-6 text-sm">
+                <span class="px-2 py-0.5 bg-blue-600 text-white rounded-full text-xs font-semibold">v1.Enterprise</span>
+                <a href="#" class="hover:text-white transition-colors">Documentation</a>
+                <a href="#" class="hover:text-white transition-colors">Support</a>
+            </div>
+        </div>
+    </footer>
+
     <!-- Scripts -->
     <script src="../logic/relationalDiagram.js"></script>
-   
+
 </body>
 
 </html>
