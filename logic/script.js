@@ -1529,30 +1529,26 @@ async function exportAdvancedPDF() {
     const primaryKeys = nodes.filter(n => n.category === "Primary Key").length;
     const multiValued = nodes.filter(n => n.category === "Multi Valued").length;
     const derived = nodes.filter(n => n.category === "Derived").length;
-    const composite = nodes.filter(n => {
-      const hasChildren = links.some(l => l.from === n.key && 
-        nodes.find(child => child.key === l.to && child.category === "Ellipse"));
-      return hasChildren && n.category === "Ellipse";
-    }).length;
+    // MODIFIED: Removed 'composite' count
 
     // Draw statistics table
     const stats = [
       { label: 'Total Entities', value: entities.length, color: [124, 58, 237] },
-      { label: '  • Strong Entities', value: strongEntities, color: [100, 100, 100] },
-      { label: '  • Weak Entities', value: weakEntities, color: [100, 100, 100] },
+      { label: '  • Strong Entities', value: strongEntities, color: [100, 100, 100] },
+      { label: '  • Weak Entities', value: weakEntities, color: [100, 100, 100] },
       { label: 'Total Relationships', value: relationships.length, color: [124, 58, 237] },
       { label: 'Total Attributes', value: attributes.length, color: [124, 58, 237] },
-      { label: '  • Primary Keys', value: primaryKeys, color: [100, 100, 100] },
-      { label: '  • Multi-valued', value: multiValued, color: [100, 100, 100] },
-      { label: '  • Derived', value: derived, color: [100, 100, 100] },
-      { label: '  • Composite', value: composite, color: [100, 100, 100] },
+      { label: '  • Primary Keys', value: primaryKeys, color: [100, 100, 100] },
+      { label: '  • Multi-valued', value: multiValued, color: [100, 100, 100] },
+      { label: '  • Derived', value: derived, color: [100, 100, 100] },
+      // MODIFIED: Removed 'Composite' line
       { label: 'Total Connections', value: links.length, color: [124, 58, 237] }
     ];
 
     stats.forEach(stat => {
       pdf.setTextColor(...stat.color);
-      pdf.setFontSize(stat.label.startsWith('  •') ? 11 : 13);
-      const isBold = !stat.label.startsWith('  •');
+      pdf.setFontSize(stat.label.startsWith('  •') ? 11 : 13);
+      const isBold = !stat.label.startsWith('  •');
       pdf.setFont(undefined, isBold ? 'bold' : 'normal');
       
       pdf.text(stat.label, 40, yPos);
@@ -1615,32 +1611,23 @@ async function exportAdvancedPDF() {
         yPos += 18;
 
         entityAttributes.forEach(attr => {
-          const subAttributes = links
-            .filter(l => l.from === attr.key)
-            .map(l => nodes.find(n => n.key === l.to && n.category === "Ellipse"))
-            .filter(Boolean);
-
+          // MODIFIED: Removed 'subAttributes' constant
+          
           pdf.setFontSize(11);
           pdf.setTextColor(60, 60, 60);
           pdf.setFont(undefined, 'normal');
           
+          // MODIFIED: Removed check for subAttributes.length
           let attrType = '';
           if (attr.category === "Primary Key") attrType = ' [PK]';
           else if (attr.category === "Multi Valued") attrType = ' [Multi-valued]';
           else if (attr.category === "Derived") attrType = ' [Derived]';
-          else if (subAttributes.length > 0) attrType = ' [Composite]';
 
-          pdf.text(`  • ${attr.text}${attrType}`, 50, yPos);
+          pdf.text(`  • ${attr.text}${attrType}`, 50, yPos);
           yPos += 16;
 
-          if (subAttributes.length > 0) {
-            subAttributes.forEach(subAttr => {
-              pdf.setFontSize(10);
-              pdf.setTextColor(100, 100, 100);
-              pdf.text(`     ◦ ${subAttr.text}`, 60, yPos);
-              yPos += 14;
-            });
-          }
+          // MODIFIED: Removed 'if (subAttributes.length > 0)' block
+          
         });
       } else {
         pdf.setFontSize(11);
@@ -1690,14 +1677,14 @@ async function exportAdvancedPDF() {
           pdf.setFont(undefined, 'normal');
           
           const relType = rel.type === "WeakRelationship" ? "Identifying" : "Regular";
-          pdf.text(`  • ${rel.name} (${relType})`, 50, yPos);
+          pdf.text(`  • ${rel.name} (${relType})`, 50, yPos);
           yPos += 15;
           
           pdf.setFontSize(10);
           pdf.setTextColor(100, 100, 100);
-          pdf.text(`    Connected to: ${rel.otherEntity}`, 60, yPos);
+          pdf.text(`    Connected to: ${rel.otherEntity}`, 60, yPos);
           yPos += 13;
-          pdf.text(`    Cardinality: ${rel.cardinality} | Participation: ${rel.participation}`, 60, yPos);
+          pdf.text(`    Cardinality: ${rel.cardinality} | Participation: ${rel.participation}`, 60, yPos);
           yPos += 16;
         });
       }
@@ -1763,11 +1750,11 @@ async function exportAdvancedPDF() {
             pdf.setFontSize(11);
             pdf.setTextColor(60, 60, 60);
             pdf.setFont(undefined, 'normal');
-            pdf.text(`  • ${ent.name}`, 50, yPos);
+            pdf.text(`  • ${ent.name}`, 50, yPos);
             yPos += 15;
             pdf.setFontSize(10);
             pdf.setTextColor(100, 100, 100);
-            pdf.text(`    Cardinality: ${ent.cardinality} | Participation: ${ent.participation}`, 60, yPos);
+            pdf.text(`    Cardinality: ${ent.cardinality} | Participation: ${ent.participation}`, 60, yPos);
             yPos += 18;
           });
         }
@@ -1790,7 +1777,7 @@ async function exportAdvancedPDF() {
             pdf.setFontSize(11);
             pdf.setTextColor(60, 60, 60);
             pdf.setFont(undefined, 'normal');
-            pdf.text(`  • ${attr.text}`, 50, yPos);
+            pdf.text(`  • ${attr.text}`, 50, yPos);
             yPos += 16;
           });
         }
