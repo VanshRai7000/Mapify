@@ -953,7 +953,7 @@ diagram.linkTemplate =
     // Main line: strokeWidth is 4 for Total, 2 for Partial
     $(go.Shape,
       { stroke: "black" }, // Default color
-      new go.Binding("strokeWidth", "isTotalParticipation", function(total) {
+      new go.Binding("strokeWidth", "isTotalParticipation", function (total) {
         return total ? 4 : 2; // 4px if total, 2px if partial
       })
     ),
@@ -981,7 +981,7 @@ diagram.linkTemplate =
         return true; // Show arrow for entity-attribute connections
       }).ofObject()),
 
-      // Cardinality label ON the line near the entity
+    // Cardinality label ON the line near the entity
     $(go.TextBlock,
       {
         segmentIndex: 0,
@@ -993,7 +993,7 @@ diagram.linkTemplate =
         margin: 2
       },
       new go.Binding("text", "cardinality"),
-      new go.Binding("visible", "cardinality", function(card) {
+      new go.Binding("visible", "cardinality", function (card) {
         return card ? true : false;
       }))
 
@@ -1049,18 +1049,49 @@ function makeEntities(element) {
   diagram.model.commitTransaction("addAttribute");
 }
 
-function applyEntityType(selectEl) {
-  const newType = selectEl.value; // "Strong" or "Weak"
-  const entityDiv = selectEl.closest('.entity-container');
-  const entityNamefeild = entityDiv.querySelector('.entityNameInput');
-  const entityName = entityNamefeild.value.trim();
+// function applyEntityType(selectEl) {
+//   const newType = selectEl.value; // "Strong" or "Weak"
+//   const entityDiv = selectEl.closest('.entity-container');
+//   const entityNamefeild = entityDiv.querySelector('.entityNameInput');
+//   const entityName = entityNamefeild.value.trim();
 
-  const node = diagram.model.nodeDataArray.find(n => n.text === entityName);
-  if (node) {
-    diagram.model.startTransaction("changeEntityType");
-    diagram.model.setCategoryForNodeData(node, newType);
-    diagram.model.commitTransaction("changeEntityType");
-  }
+//   const node = diagram.model.nodeDataArray.find(n => n.text === entityName);
+//   if (node) {
+//     diagram.model.startTransaction("changeEntityType");
+//     diagram.model.setCategoryForNodeData(node, newType);
+//     diagram.model.commitTransaction("changeEntityType");
+//   }
+// }
+
+/**
+ * Applies the selected entity type (Strong or Weak) to the GoJS diagram node.
+ * * --- FIX APPLIED ---
+ * This function now correctly maps the "Strong" option in the dropdown
+ * to the "Rectangle" category in GoJS, which is your template for
+ * a strong entity. The "Weak" option correctly maps to the "Weak" category.
+ */
+function applyEntityType(selectEl) {
+    // Get the selected value ("Strong" or "Weak")
+    const selectedValue = selectEl.value;
+    
+    // Find the parent entity card and get its name
+    const entityDiv = selectEl.closest('.entity-container');
+    const entityNamefeild = entityDiv.querySelector('.entityNameInput');
+    const entityName = entityNamefeild.value.trim();
+
+    // Determine the correct GoJS category name
+    // 💡 THE FIX: "Strong" maps to "Rectangle", "Weak" maps to "Weak"
+    const newCategory = (selectedValue === "Weak") ? "Weak" : "Rectangle";
+
+    // Find the corresponding node in the diagram
+    const node = diagram.model.nodeDataArray.find(n => n.text === entityName);
+
+    // If the node exists, update its category
+    if (node) {
+        diagram.model.startTransaction("changeEntityType");
+        diagram.model.setCategoryForNodeData(node, newCategory);
+        diagram.model.commitTransaction("changeEntityType");
+    }
 }
 
 // Delete diagram node by text
@@ -1073,7 +1104,7 @@ function DeleteDiagram(value) {
 
   if (node) {
     // This will automatically remove connected links too
-    diagram.remove(diagram.findNodeForKey(node.key)); 
+    diagram.remove(diagram.findNodeForKey(node.key));
   }
 }
 
@@ -1366,12 +1397,12 @@ function convertAndOpenRelationalPage() {
 async function exportDiagramToPDF() {
   try {
     const { jsPDF } = window.jspdf;
-    
+
     // Show loading indicator
     const originalText = event.target.innerHTML;
     event.target.innerHTML = '<i data-feather="loader" class="w-4 h-4 animate-spin"></i> Exporting...';
     feather.replace();
-    
+
     const pdf = new jsPDF({
       orientation: 'landscape',
       unit: 'px',
@@ -1398,15 +1429,15 @@ async function exportDiagramToPDF() {
     pdf.setFontSize(10);
     pdf.setTextColor(100, 100, 100);
     pdf.text(`Generated: ${new Date().toLocaleString()}`, 20, 45);
-    
+
     // Count entities and relationships
-    const entities = diagram.model.nodeDataArray.filter(n => 
+    const entities = diagram.model.nodeDataArray.filter(n =>
       ["Rectangle", "Strong", "Weak"].includes(n.category)
     );
-    const relationships = diagram.model.nodeDataArray.filter(n => 
+    const relationships = diagram.model.nodeDataArray.filter(n =>
       n.category?.includes("Relationship")
     );
-    
+
     pdf.text(`Entities: ${entities.length} | Relationships: ${relationships.length}`, 20, 55);
 
     // Add diagram image
@@ -1430,11 +1461,11 @@ async function exportDiagramToPDF() {
     // Save PDF silently
     const timestamp = new Date().toISOString().slice(0, 10);
     pdf.save(`ER_Diagram_${timestamp}.pdf`);
-    
+
     // Restore button
     event.target.innerHTML = originalText;
     feather.replace();
-    
+
   } catch (error) {
     console.error('Error exporting PDF:', error);
     // Silent error - just restore button
@@ -1461,29 +1492,29 @@ async function exportAdvancedPDF() {
     // ========== Page 1: Cover Page ==========
     pdf.setFillColor(124, 58, 237);
     pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
-    
+
     pdf.setTextColor(255, 255, 255);
     pdf.setFontSize(45);
     pdf.text('ER Diagram', pdfWidth / 2, pdfHeight / 2 - 80, { align: 'center' });
-    
+
     pdf.setFontSize(20);
     pdf.text('Entity Relationship Model', pdfWidth / 2, pdfHeight / 2 - 35, { align: 'center' });
-    
+
     pdf.setFontSize(14);
     pdf.text(`Generated: ${new Date().toLocaleString()}`, pdfWidth / 2, pdfHeight / 2 + 10, { align: 'center' });
-    
+
     // Statistics
     const entities = nodes.filter(n => ["Rectangle", "Strong", "Weak"].includes(n.category));
     const relationships = nodes.filter(n => n.category?.includes("Relationship"));
     const attributes = nodes.filter(n => ["Ellipse", "Primary Key", "Multi Valued", "Derived"].includes(n.category));
-    
+
     pdf.setFontSize(16);
-    pdf.text(`${entities.length} Entities | ${relationships.length} Relationships | ${attributes.length} Attributes`, 
+    pdf.text(`${entities.length} Entities | ${relationships.length} Relationships | ${attributes.length} Attributes`,
       pdfWidth / 2, pdfHeight / 2 + 50, { align: 'center' });
 
     // ========== Page 2: ER Diagram ==========
     pdf.addPage();
-    
+
     const imgData = await new Promise((resolve) => {
       diagram.makeImageData({
         background: 'white',
@@ -1550,12 +1581,12 @@ async function exportAdvancedPDF() {
       pdf.setFontSize(stat.label.startsWith('  •') ? 11 : 13);
       const isBold = !stat.label.startsWith('  •');
       pdf.setFont(undefined, isBold ? 'bold' : 'normal');
-      
+
       pdf.text(stat.label, 40, yPos);
       pdf.text(String(stat.value), pdfWidth - 80, yPos, { align: 'right' });
-      
+
       yPos += 22;
-      
+
       if (yPos > pdfHeight - 50) {
         pdf.addPage();
         yPos = 50;
@@ -1579,12 +1610,12 @@ async function exportAdvancedPDF() {
       // Entity name with box
       pdf.setFillColor(240, 240, 255);
       pdf.rect(20, yPos - 15, pdfWidth - 40, 25, 'F');
-      
+
       pdf.setFontSize(16);
       pdf.setTextColor(124, 58, 237);
       pdf.setFont(undefined, 'bold');
       pdf.text(`${idx + 1}. ${entity.text}`, 30, yPos);
-      
+
       yPos += 30;
 
       // Entity type
@@ -1612,11 +1643,11 @@ async function exportAdvancedPDF() {
 
         entityAttributes.forEach(attr => {
           // MODIFIED: Removed 'subAttributes' constant
-          
+
           pdf.setFontSize(11);
           pdf.setTextColor(60, 60, 60);
           pdf.setFont(undefined, 'normal');
-          
+
           // MODIFIED: Removed check for subAttributes.length
           let attrType = '';
           if (attr.category === "Primary Key") attrType = ' [PK]';
@@ -1627,7 +1658,7 @@ async function exportAdvancedPDF() {
           yPos += 16;
 
           // MODIFIED: Removed 'if (subAttributes.length > 0)' block
-          
+
         });
       } else {
         pdf.setFontSize(11);
@@ -1644,15 +1675,15 @@ async function exportAdvancedPDF() {
           const relKey = l.from === entity.key ? l.to : l.from;
           const relNode = nodes.find(n => n.key === relKey && n.category?.includes("Relationship"));
           if (!relNode) return null;
-          
-          const otherLink = links.find(link => 
-            (link.from === relKey || link.to === relKey) && 
+
+          const otherLink = links.find(link =>
+            (link.from === relKey || link.to === relKey) &&
             link.from !== entity.key && link.to !== entity.key
           );
-          
+
           const otherEntityKey = otherLink ? (otherLink.from === relKey ? otherLink.to : otherLink.from) : null;
           const otherEntity = nodes.find(n => n.key === otherEntityKey);
-          
+
           return {
             name: relNode.text,
             type: relNode.category,
@@ -1675,11 +1706,11 @@ async function exportAdvancedPDF() {
           pdf.setFontSize(11);
           pdf.setTextColor(60, 60, 60);
           pdf.setFont(undefined, 'normal');
-          
+
           const relType = rel.type === "WeakRelationship" ? "Identifying" : "Regular";
           pdf.text(`  • ${rel.name} (${relType})`, 50, yPos);
           yPos += 15;
-          
+
           pdf.setFontSize(10);
           pdf.setTextColor(100, 100, 100);
           pdf.text(`    Connected to: ${rel.otherEntity}`, 60, yPos);
@@ -1710,12 +1741,12 @@ async function exportAdvancedPDF() {
         // Relationship name with box
         pdf.setFillColor(255, 250, 240);
         pdf.rect(20, yPos - 15, pdfWidth - 40, 25, 'F');
-        
+
         pdf.setFontSize(16);
         pdf.setTextColor(124, 58, 237);
         pdf.setFont(undefined, 'bold');
         pdf.text(`${idx + 1}. ${rel.text}`, 30, yPos);
-        
+
         yPos += 30;
 
         // Relationship type
@@ -1730,7 +1761,7 @@ async function exportAdvancedPDF() {
         const connectedLinks = links.filter(l => l.from === rel.key || l.to === rel.key);
         const connectedEntities = connectedLinks.map(l => {
           const entityKey = l.from === rel.key ? l.to : l.from;
-          const entityNode = nodes.find(n => n.key === entityKey && 
+          const entityNode = nodes.find(n => n.key === entityKey &&
             ["Rectangle", "Strong", "Weak"].includes(n.category));
           return entityNode ? {
             name: entityNode.text,
@@ -1762,7 +1793,7 @@ async function exportAdvancedPDF() {
         // Relationship attributes
         const relAttributes = links
           .filter(l => l.from === rel.key)
-          .map(l => nodes.find(n => n.key === l.to && 
+          .map(l => nodes.find(n => n.key === l.to &&
             ["Ellipse", "Primary Key", "Multi Valued", "Derived"].includes(n.category)))
           .filter(Boolean);
 
@@ -1789,7 +1820,7 @@ async function exportAdvancedPDF() {
     // Save PDF silently
     const timestamp = new Date().toISOString().slice(0, 10);
     pdf.save(`ER_Diagram_Complete_${timestamp}.pdf`);
-    
+
   } catch (error) {
     console.error('Error exporting advanced PDF:', error);
   }
@@ -1800,7 +1831,7 @@ async function exportPageToPDF() {
   try {
     const { jsPDF } = window.jspdf;
     const diagramDiv = document.getElementById('myDiagramDiv');
-    
+
     const canvas = await html2canvas(diagramDiv, {
       scale: 2,
       backgroundColor: '#ffffff',
@@ -1815,10 +1846,10 @@ async function exportPageToPDF() {
     });
 
     pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-    
+
     const timestamp = new Date().toISOString().slice(0, 10);
     pdf.save(`ER_Diagram_Full_${timestamp}.pdf`);
-    
+
   } catch (error) {
     console.error('Error:', error);
   }
@@ -1833,7 +1864,7 @@ async function exportPageToPDF() {
  */
 function inferDataType(attrName) {
   const name = attrName.toLowerCase();
-  
+
   if (name.endsWith('_id') || name === 'id' || name.startsWith('num_') || name.endsWith('count')) {
     return 'INT';
   }
@@ -1862,10 +1893,10 @@ function getAttributes(nodeKey, allNodes, allLinks) {
     let attrKey = null;
     if (link.from === nodeKey) attrKey = link.to;
     if (link.to === nodeKey) attrKey = link.from;
-    
+
     if (attrKey) {
       const attrNode = allNodes.find(n => n.key === attrKey);
-      
+
       // Stop if the linked node is not an attribute
       if (!attrNode || !["Ellipse", "Primary Key", "Multi Valued", "Derived"].includes(attrNode.category)) {
         return;
@@ -1876,7 +1907,7 @@ function getAttributes(nodeKey, allNodes, allLinks) {
 
       // Check for composite attributes
       const subLinks = allLinks.filter(l => l.from === attrNode.key && l.to !== nodeKey);
-      
+
       if (subLinks.length > 0 && attrNode.category === "Ellipse") {
         // It's composite: expand its children
         subLinks.forEach(subLink => {
@@ -1941,12 +1972,12 @@ function buildRelationalSchema() {
           isNotNull: attr.isPartialKey, // Partial keys must be NOT NULL
           isUnique: false
         });
-        
+
         if (attr.isPartialKey) {
           partialKey = attr.name;
         }
       });
-      
+
       if (node.category === "Weak") {
         // Weak entities use their partial key for now.
         // It will be combined with the owner's PK in Step 2.
@@ -1954,30 +1985,30 @@ function buildRelationalSchema() {
       } else {
         // Strong entities: find explicit PK or create a default one
         primaryKey = columns.find(c => c.name === partialKey)?.name;
-        
+
         // --- MODIFIED BLOCK ---
         if (!primaryKey) {
-            const defaultPkName = node.text.toLowerCase() + "_id";
-            
-            // Check if a column with this name (or case-variant) already exists
-            const existingCol = columns.find(c => c.name.toLowerCase() === defaultPkName);
-            
-            if (existingCol) {
-                // A column like "Course_id" or "course_id" already exists.
-                // Promote it to be the Primary Key.
-                existingCol.isNotNull = true;
-                existingCol.isUnique = true; // PKs must be unique
-                primaryKey = existingCol.name;
-            } else {
-                // No existing column, so create the default one
-                columns.unshift({
-                    name: defaultPkName,
-                    type: "INT",
-                    isNotNull: true,
-                    isUnique: true
-                });
-                primaryKey = defaultPkName;
-            }
+          const defaultPkName = node.text.toLowerCase() + "_id";
+
+          // Check if a column with this name (or case-variant) already exists
+          const existingCol = columns.find(c => c.name.toLowerCase() === defaultPkName);
+
+          if (existingCol) {
+            // A column like "Course_id" or "course_id" already exists.
+            // Promote it to be the Primary Key.
+            existingCol.isNotNull = true;
+            existingCol.isUnique = true; // PKs must be unique
+            primaryKey = existingCol.name;
+          } else {
+            // No existing column, so create the default one
+            columns.unshift({
+              name: defaultPkName,
+              type: "INT",
+              isNotNull: true,
+              isUnique: true
+            });
+            primaryKey = defaultPkName;
+          }
         }
         // --- END MODIFIED BLOCK ---
       }
@@ -1985,7 +2016,7 @@ function buildRelationalSchema() {
       // Set explicit NOT NULL for the final PK
       const pkCol = columns.find(c => c.name === primaryKey);
       if (pkCol) pkCol.isNotNull = true;
-      
+
       tables[node.text] = {
         tableName: node.text,
         columns: columns,
@@ -2015,12 +2046,12 @@ function buildRelationalSchema() {
     const [e1, e2] = connectedEntities;
     const card1 = e1.link.cardinality;
     const card2 = e2.link.cardinality;
-    
+
     const table1 = tables[e1.node.text];
     const table2 = tables[e2.node.text];
-    
+
     const relAttributes = getAttributes(relNode.key, nodes, links)
-                            .filter(attr => attr.category !== "Multi Valued"); // No MVs on relationships
+      .filter(attr => attr.category !== "Multi Valued"); // No MVs on relationships
 
     // Rule 1: Weak Relationship (Identifying)
     if (relNode.category === "WeakRelationship") {
@@ -2029,10 +2060,10 @@ function buildRelationalSchema() {
       const weak = (e1.node.category === "Weak") ? e1 : e2;
       const ownerTable = tables[owner.node.text];
       const weakTable = tables[weak.node.text];
-      
+
       const ownerPk = ownerTable.primaryKey;
       const weakPartialPk = weakTable.primaryKey; // This is just the partial key
-      
+
       const ownerPkCol = ownerTable.columns.find(c => c.name === ownerPk);
       const fkColName = `${owner.node.text}_${ownerPk}`;
 
@@ -2046,7 +2077,7 @@ function buildRelationalSchema() {
 
       // Create the composite PK: (owner_pk, partial_pk)
       weakTable.primaryKey = [fkColName, weakPartialPk];
-      
+
       // Add the FK constraint
       weakTable.foreignKeys.push({
         column: fkColName,
@@ -2054,7 +2085,7 @@ function buildRelationalSchema() {
         referencesColumn: ownerPk
         // Consider adding ON DELETE CASCADE
       });
-      
+
     }
     // Rule 2: M:N Relationship
     else if ((card1 === 'N' || card1 === 'M') && (card2 === 'N' || card2 === 'M')) {
@@ -2062,7 +2093,7 @@ function buildRelationalSchema() {
       const pk2 = table2.primaryKey;
       const pk1Col = table1.columns.find(c => c.name === pk1);
       const pk2Col = table2.columns.find(c => c.name === pk2);
-      
+
       const fkColName1 = `${table1.tableName}_${pk1}`;
       const fkColName2 = `${table2.tableName}_${pk2}`;
 
@@ -2080,7 +2111,7 @@ function buildRelationalSchema() {
         ]
       };
       tables[newTable.tableName] = newTable;
-      
+
     }
     // Rule 3: 1:N or 1:1 Relationship
     else {
@@ -2101,7 +2132,7 @@ function buildRelationalSchema() {
       const onePkCol = oneTable.columns.find(c => c.name === onePk);
 
       const fkColName = `${oneTable.tableName}_${onePk}`;
-      
+
       // Add 'one' side's PK as a foreign key column in the 'many' side's table
       manyTable.columns.push({
         name: fkColName,
@@ -2118,28 +2149,28 @@ function buildRelationalSchema() {
         referencesTable: oneTable.tableName,
         referencesColumn: onePk
       });
-      
+
       // Add relationship attributes to the 'many' side table
       manyTable.columns.push(...relAttributes);
     }
 
     processedRelationships.add(relNode.key);
   });
-  
+
   // --- Step 3: Process Multi-valued Attributes ---
   nodes.forEach(node => {
     if (node.category === "Multi Valued") {
       // Find its parent entity
       const parentLink = links.find(l => l.to === node.key);
       if (!parentLink) return;
-      
+
       const parentNode = nodes.find(n => n.key === parentLink.from);
       if (!parentNode || !tables[parentNode.text]) return; // Not attached to a valid table
 
       const parentTable = tables[parentNode.text];
       const parentPk = parentTable.primaryKey;
       const parentPkCol = parentTable.columns.find(c => c.name === parentPk);
-      
+
       const mvTableName = `${parentTable.tableName}_${node.text}`;
       const parentFkColName = `${parentTable.tableName}_${parentPk}`;
 
@@ -2180,13 +2211,13 @@ function generateSQL() {
   for (const tableName in tables) {
     const table = tables[tableName];
     let columnDefinitions = [];
-    
+
     sqlOutput += `CREATE TABLE \`${tableName}\` (\n`;
 
     // Add Columns
     table.columns.forEach(column => {
       let colString = `  \`${column.name}\` ${column.type}`;
-      
+
       // Handle single-column Primary Key
       if (typeof table.primaryKey === 'string' && column.name === table.primaryKey) {
         colString += " PRIMARY KEY";
@@ -2226,24 +2257,24 @@ function generateSQL() {
     sqlOutput += `\n);\n\n`;
 
     // --- MODIFIED BLOCK ---
-    
+
     // Generate dummy INSERT statements as a template
     const columnNames = table.columns.map(col => `\`${col.name}\``).join(", ");
-    
+
     sqlOutput += `-- Example INSERTs for \`${tableName}\`:\n`;
 
     // Generate 3 sample statements
     for (let i = 1; i <= 3; i++) {
-        // NEW: Call the smart data generator for each column
-        const placeholders = table.columns.map(col => {
-            return generateDummyData(col.name, col.type, i);
-        }).join(", ");
+      // NEW: Call the smart data generator for each column
+      const placeholders = table.columns.map(col => {
+        return generateDummyData(col.name, col.type, i);
+      }).join(", ");
 
-        // Add the commented-out INSERT statement
-        sqlOutput += `-- INSERT INTO \`${tableName}\` (${columnNames}) VALUES (${placeholders});\n`;
+      // Add the commented-out INSERT statement
+      sqlOutput += `-- INSERT INTO \`${tableName}\` (${columnNames}) VALUES (${placeholders});\n`;
     }
     sqlOutput += `\n\n`; // Add the final spacing
-    
+
     // --- END OF MODIFIED BLOCK ---
   }
 
@@ -2255,57 +2286,57 @@ function generateSQL() {
  * Generates context-aware dummy data based on column name and type.
  */
 function generateDummyData(columnName, dataType, index) {
-    const name = columnName.toLowerCase();
-    const i = index - 1; // 0-based index for arrays
+  const name = columnName.toLowerCase();
+  const i = index - 1; // 0-based index for arrays
 
-    // Sample data arrays (expand these as you like)
-    const firsts = ['John', 'Jane', 'Peter'];
-    const lasts = ['Doe', 'Smith', 'Jones'];
-    const cities = ['New York', 'London', 'Tokyo'];
-    const jobs = ['Developer', 'Manager', 'Analyst'];
+  // Sample data arrays (expand these as you like)
+  const firsts = ['John', 'Jane', 'Peter'];
+  const lasts = ['Doe', 'Smith', 'Jones'];
+  const cities = ['New York', 'London', 'Tokyo'];
+  const jobs = ['Developer', 'Manager', 'Analyst'];
 
-    // --- Name-based Logic ---
-    if (name.includes('name')) {
-        if (name.includes('first')) return `'${firsts[i % firsts.length]}'`;
-        if (name.includes('last')) return `'${lasts[i % lasts.length]}'`;
-        return `'${firsts[i % firsts.length]} ${lasts[i % lasts.length]}'`;
-    }
-    if (name.includes('email')) {
-        return `'${firsts[i % firsts.length].toLowerCase()}.${lasts[i % lasts.length].toLowerCase()}@example.com'`;
-    }
-    if (name.includes('age')) {
-        return 25 + (i * 5); // e.g., 25, 30, 35
-    }
-    if (name.includes('salary')) {
-        return (50000 + (i * 15000)).toFixed(2); // e.g., 50000.00, 65000.00, 80000.00
-    }
-    if (name.includes('city')) {
-        return `'${cities[i % cities.length]}'`;
-    }
-    if (name.includes('address') && !name.includes('email')) {
-        return `'${100 + i} Main St'`; // e.g., 101 Main St, 102 Main St
-    }
-    if (name.includes('job') || name.includes('title')) {
-        return `'${jobs[i % jobs.length]}'`;
-    }
-    if (name.startsWith('is_') || name.startsWith('has_')) {
-        return (i % 2 === 0) ? 'true' : 'false'; // Alternates true, false, true
-    }
-    if (name.includes('date') || name.endsWith('_at')) {
-        return `'2025-01-0${index}'`; // e.g., '2025-01-01'
-    }
-    if (name.endsWith('_id') || name.endsWith('id')) {
-        return index; // 1, 2, 3
-    }
+  // --- Name-based Logic ---
+  if (name.includes('name')) {
+    if (name.includes('first')) return `'${firsts[i % firsts.length]}'`;
+    if (name.includes('last')) return `'${lasts[i % lasts.length]}'`;
+    return `'${firsts[i % firsts.length]} ${lasts[i % lasts.length]}'`;
+  }
+  if (name.includes('email')) {
+    return `'${firsts[i % firsts.length].toLowerCase()}.${lasts[i % lasts.length].toLowerCase()}@example.com'`;
+  }
+  if (name.includes('age')) {
+    return 25 + (i * 5); // e.g., 25, 30, 35
+  }
+  if (name.includes('salary')) {
+    return (50000 + (i * 15000)).toFixed(2); // e.g., 50000.00, 65000.00, 80000.00
+  }
+  if (name.includes('city')) {
+    return `'${cities[i % cities.length]}'`;
+  }
+  if (name.includes('address') && !name.includes('email')) {
+    return `'${100 + i} Main St'`; // e.g., 101 Main St, 102 Main St
+  }
+  if (name.includes('job') || name.includes('title')) {
+    return `'${jobs[i % jobs.length]}'`;
+  }
+  if (name.startsWith('is_') || name.startsWith('has_')) {
+    return (i % 2 === 0) ? 'true' : 'false'; // Alternates true, false, true
+  }
+  if (name.includes('date') || name.endsWith('_at')) {
+    return `'2025-01-0${index}'`; // e.g., '2025-01-01'
+  }
+  if (name.endsWith('_id') || name.endsWith('id')) {
+    return index; // 1, 2, 3
+  }
 
-    // --- Type-based Fallback ---
-    if (dataType.includes('INT')) return index;
-    if (dataType.includes('DECIMAL')) return (10.50 * index).toFixed(2);
-    if (dataType.includes('BOOLEAN')) return (i % 2 === 0) ? 'true' : 'false';
-    if (dataType.includes('DATE') || dataType.includes('TIME')) return `'2025-01-0${index}'`;
-    
-    // Default fallback
-    return `'value_${index}'`;
+  // --- Type-based Fallback ---
+  if (dataType.includes('INT')) return index;
+  if (dataType.includes('DECIMAL')) return (10.50 * index).toFixed(2);
+  if (dataType.includes('BOOLEAN')) return (i % 2 === 0) ? 'true' : 'false';
+  if (dataType.includes('DATE') || dataType.includes('TIME')) return `'2025-01-0${index}'`;
+
+  // Default fallback
+  return `'value_${index}'`;
 }
 
 // --- SQL MODAL UI FUNCTIONS ---
@@ -2317,7 +2348,7 @@ function generateDummyData(columnName, dataType, index) {
  */
 function handleGenerateSQL() {
   showLoadingModal("Generating SQL...");
-  
+
   // Use a timeout to allow the loading modal to render
   setTimeout(() => {
     try {
@@ -2403,11 +2434,11 @@ function closeSQLModal() {
  * Copies the SQL code to the clipboard.
  */
 function copySqlToClipboard() {
-    const sqlCode = generateSQL(); // Regenerate plain text
-    navigator.clipboard.writeText(sqlCode).then(() => {
-        alert('SQL code copied to clipboard!');
-    }, (err) => {
-        alert('Failed to copy text.');
-        console.error('Clipboard copy failed:', err);
-    });
+  const sqlCode = generateSQL(); // Regenerate plain text
+  navigator.clipboard.writeText(sqlCode).then(() => {
+    alert('SQL code copied to clipboard!');
+  }, (err) => {
+    alert('Failed to copy text.');
+    console.error('Clipboard copy failed:', err);
+  });
 }
