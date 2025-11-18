@@ -3,6 +3,10 @@
     {
       "source": "/",
       "destination": "/dist/index.html"
+    },
+    {
+      "source": "/relational.html",
+      "destination": "/dist/relational.html"
     }
   ]
 }
