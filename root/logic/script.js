@@ -272,7 +272,7 @@ function addRelationship() {
         <button type="button" 
             class="p-1.5 rounded-full bg-red-100 text-red-600 hover:bg-red-200"
             onclick="deleteRelationship(this)">
-            <img src="/img/dustbin.png" class="h-4 w-4" alt="Delete">
+            <img src="../img/dustbin.png" class="h-4 w-4" alt="Delete">
         </button>
     </div>
 
@@ -567,7 +567,7 @@ function addRelationship() {
         <button type="button" 
             class="p-1.5 rounded-full bg-red-100 text-red-600 hover:bg-red-200"
             onclick="deleteRelationship(this)">
-            <img src="/img/dustbin.png" class="h-4 w-4" alt="Delete">
+            <img src="../img/dustbin.png" class="h-4 w-4" alt="Delete">
         </button>
     </div>
 
