@@ -6,60 +6,540 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relational Model</title>
 
-    <!-- GoJS -->
-    <script src="https://unpkg.com/gojs/release/go-debug.js"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+    <!-- GoJS -->
+    <script src="https://unpkg.com/gojs/release/go.js"></script>
+
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+
     <!-- Feather Icons -->
     <script src="https://unpkg.com/feather-icons"></script>
 
     <style>
-        /* GoJS text styling */
-        .go-node .go-textblock {
+        body {
             font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #818cf8;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6366f1;
         }
     </style>
 </head>
 
-<body class="bg-gray-900 text-white h-screen flex flex-col">
+<body class="bg-gray-900 text-white h-screen flex flex-col overflow-hidden">
 
     <!-- Navbar / Header -->
-    <nav class="bg-gray-900 text-white px-6 py-3 flex items-center justify-between border-b shadow-md">
-        <div class="flex items-center gap-3">
+    <nav class="bg-gray-900 text-white px-4 md:px-6 py-3 flex items-center justify-between border-b border-gray-700 shadow-md z-20 shrink-0 relative">
+        <div class="flex items-center gap-2 md:gap-4">
             <!-- Logo -->
-            <img src="https://img.icons8.com/fluency/48/database.png" alt="Logo" class="w-8 h-8">
-            <span class="font-semibold text-lg">Relational Model</span>
-            <span class="text-xs text-gray-400">Enterprise Edition</span>
+            <div class="bg-indigo-600 p-1.5 rounded-lg shadow-lg shadow-indigo-500/20">
+                <i data-feather="database" class="w-5 h-5 text-white"></i>
+            </div>
+            <div class="flex flex-col justify-center">
+                <span class="font-bold text-base md:text-lg leading-none tracking-tight">Relational Model</span>
+                <span class="text-[10px] text-indigo-300 font-medium uppercase tracking-widest mt-0.5">Enterprise Viewer</span>
+            </div>
         </div>
 
-        <!-- Optional icons on right -->
-        <div class="flex items-center gap-4">
-            <i data-feather="settings" class="w-5 h-5 text-gray-400 hover:text-white cursor-pointer"></i>
-            <i data-feather="help-circle" class="w-5 h-5 text-gray-400 hover:text-white cursor-pointer"></i>
+        <!-- Desktop Action Toolbar -->
+        <div class="hidden md:flex items-center gap-2 md:gap-4">
+            <div class="flex items-center bg-gray-800 rounded-lg p-1 border border-gray-700">
+                <button onclick="generateSampleData(3)" class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-md transition-colors">
+                    <i data-feather="refresh-cw" class="w-3 h-3"></i>
+                    <span>Generate Data</span>
+                </button>
+                <div class="w-px h-4 bg-gray-700 mx-1"></div>
+                <button onclick="resetDiagram()" class="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-300 hover:text-red-400 hover:bg-gray-700 rounded-md transition-colors">
+                    <i data-feather="trash-2" class="w-3 h-3"></i>
+                    <span>Clear</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button id="mobileMenuBtn" class="md:hidden p-2 hover:bg-gray-800 rounded-md text-gray-400 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <i data-feather="menu" class="w-5 h-5"></i>
+        </button>
+
+        <!-- Mobile Menu Dropdown (Absolute Positioned) -->
+        <div id="mobileMenu" class="hidden absolute top-full left-0 w-full bg-gray-900 border-b border-gray-700 shadow-xl z-30 md:hidden transform transition-all duration-200 origin-top">
+            <div class="p-4 space-y-3 bg-gray-900">
+                <!-- Primary Actions -->
+                <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider px-1">Data Controls</div>
+                <button onclick="generateSampleData(3); toggleMobileMenu()" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg transition-colors border border-gray-700 active:bg-gray-600">
+                    <i data-feather="refresh-cw" class="w-4 h-4"></i>
+                    <span class="font-medium">Generate New Data</span>
+                </button>
+                <button onclick="resetDiagram(); toggleMobileMenu()" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-800 hover:bg-red-900/30 text-red-400 hover:text-red-300 rounded-lg transition-colors border border-gray-700 hover:border-red-900/50 active:bg-gray-700">
+                    <i data-feather="trash-2" class="w-4 h-4"></i>
+                    <span class="font-medium">Clear Diagram</span>
+                </button>
+
+                <!-- Divider -->
+                <div class="h-px bg-gray-800 my-1"></div>
+
+            </div>
         </div>
     </nav>
 
     <!-- Diagram Container -->
-    <main class="flex-1 p-6 bg-white">
-        <div id="relationalDiagramDiv" class="w-full h-full rounded-xl shadow-lg bg-gray-50"></div>
+    <main class="flex-1 bg-gray-50 relative overflow-hidden flex flex-col z-0">
+        <!-- Pattern Background -->
+        <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(#4f46e5 1px, transparent 1px); background-size: 24px 24px;"></div>
+
+        <div class="flex-1 relative w-full h-full overflow-hidden">
+            <!-- The GoJS Diagram Div -->
+            <div id="relationalDiagramDiv" class="absolute inset-0 w-full h-full z-10"></div>
+        </div>
     </main>
 
-    <footer class="bg-gray-900 text-gray-400 px-6 py-4 border-t border-gray-700 w-full">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <div class="text-sm">
-                <span class="font-medium text-gray-300">Relational Model Viewer</span> | © 2025 All Rights Reserved.
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 px-4 md:px-6 py-3 border-t border-gray-700 w-full shrink-0 z-10">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 md:gap-0">
+            <div class="text-xs text-center md:text-left">
+                <span class="font-medium text-gray-300">Database Schema Visualizer</span>
+                <span class="hidden md:inline text-gray-600 mx-2">|</span>
+                <span class="opacity-60 block md:inline">Visualizing Live Data Relations</span>
             </div>
-            <div class="flex items-center gap-6 text-sm">
-                <span class="px-2 py-0.5 bg-blue-600 text-white rounded-full text-xs font-semibold">v1.Enterprise</span>
-                <a href="#" class="hover:text-white transition-colors">Documentation</a>
-                <a href="#" class="hover:text-white transition-colors">Support</a>
+            <div class="flex items-center gap-4 text-xs justify-center">
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    <span class="text-gray-300">System Online</span>
+                </div>
+                <span class="px-2 py-0.5 bg-indigo-900/50 border border-indigo-700/50 text-indigo-300 rounded text-[10px] font-semibold tracking-wide">v2.0.1</span>
             </div>
         </div>
     </footer>
 
-    <!-- Scripts -->
-    <script src="../logic/relationalDiagram.js"></script>
+    <!-- Logic Script -->
+    <script>
+        // ===================== Mobile Menu Logic =====================
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
 
+        function toggleMobileMenu() {
+            mobileMenu.classList.toggle('hidden');
+            const icon = mobileMenuBtn.querySelector('i');
+            if (mobileMenu.classList.contains('hidden')) {
+                // currently hidden, switch icon to menu
+                icon.setAttribute('data-feather', 'menu');
+            } else {
+                // currently showing, switch icon to x
+                icon.setAttribute('data-feather', 'x');
+            }
+            feather.replace();
+        }
+
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+
+        // ===================== Load Relational Tables =====================
+        let relationalTables = JSON.parse(sessionStorage.getItem("relationalTables") || "[]");
+
+        // Add test data if nothing in sessionStorage
+        if (relationalTables.length === 0) {
+            relationalTables = [{
+                    tableName: "Employee",
+                    primaryKey: "E_id",
+                    columns: [{
+                            name: "E_id",
+                            type: "INT"
+                        },
+                        {
+                            name: "E_name",
+                            type: "VARCHAR(255)"
+                        },
+                        {
+                            name: "E_Salary",
+                            type: "DECIMAL(10,2)"
+                        },
+                        {
+                            name: "E_dept",
+                            type: "VARCHAR(100)"
+                        }
+                    ],
+                    foreignKeys: []
+                },
+                {
+                    tableName: "Department",
+                    primaryKey: "Dept_id",
+                    columns: [{
+                            name: "Dept_id",
+                            type: "INT"
+                        },
+                        {
+                            name: "Dept_name",
+                            type: "VARCHAR(255)"
+                        },
+                        {
+                            name: "Manager_id",
+                            type: "INT"
+                        }
+                    ],
+                    foreignKeys: [{
+                        column: "Manager_id",
+                        references: "Employee"
+                    }]
+                }
+            ];
+        }
+
+        // ===================== Auto-Generate Sample Data =====================
+        function generateSampleData(numRows = 3) {
+            relationalTables.forEach(table => {
+                table.sampleData = [];
+
+                for (let i = 0; i < numRows; i++) {
+                    const row = {};
+                    table.columns.forEach(col => {
+                        row[col.name] = generateValueForColumn(col, i + 1, table);
+                    });
+                    table.sampleData.push(row);
+                }
+            });
+
+            updateDiagram();
+        }
+
+        // ===================== Generate Value Based on Column Type =====================
+        function generateValueForColumn(column, rowIndex, table) {
+            const colName = column.name.toLowerCase();
+            const colType = column.type.toUpperCase();
+
+            // Check if it's a primary key
+            if (column.name === table.primaryKey) {
+                return rowIndex;
+            }
+
+            // Check if it's a foreign key
+            const isForeignKey = table.foreignKeys?.some(fk => fk.column === column.name);
+            if (isForeignKey) {
+                return Math.ceil(Math.random() * 3);
+            }
+
+            // NAME FIELDS - Different formats
+            if (colName.includes('firstname') || colName.includes('first_name') || colName.includes('fname') || colName === 'f_name') {
+                const firstNames = ['John', 'Emma', 'Michael', 'Sophia', 'William', 'Olivia', 'James', 'Ava'];
+                return firstNames[rowIndex - 1] || firstNames[rowIndex % firstNames.length];
+            } else if (colName.includes('middlename') || colName.includes('middle_name') || colName.includes('mname') || colName === 'm_name') {
+                const middleNames = ['David', 'Marie', 'Lee', 'Ann', 'James', 'Rose', 'Paul', 'Jane'];
+                return middleNames[rowIndex - 1] || middleNames[rowIndex % middleNames.length];
+            } else if (colName.includes('lastname') || colName.includes('last_name') || colName.includes('lname') || colName === 'l_name' || colName.includes('surname')) {
+                const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis'];
+                return lastNames[rowIndex - 1] || lastNames[rowIndex % lastNames.length];
+            } else if (colName.includes('name') && !colName.includes('username')) {
+                const fullNames = ['John Smith', 'Emma Johnson', 'Michael Williams', 'Sophia Brown', 'William Jones'];
+                return fullNames[rowIndex - 1] || fullNames[rowIndex % fullNames.length];
+            }
+
+            // SALARY/FINANCIAL
+            if (colName.includes('salary') || colName.includes('wage')) {
+                const salaries = [55000, 65000, 75000, 85000, 95000];
+                return salaries[rowIndex - 1] || salaries[rowIndex % salaries.length];
+            }
+
+            // DEPARTMENT
+            if (colName.includes('department') || colName.includes('dept')) {
+                const departments = ['ECE', 'CIVIL', 'MECHANICAL', 'CSE', 'EEE'];
+                return departments[rowIndex - 1] || departments[rowIndex % departments.length];
+            }
+
+            // EMAIL
+            if (colName.includes('email')) {
+                return `user${rowIndex}@email.com`;
+            }
+
+            // PHONE
+            if (colName.includes('phone') || colName.includes('mobile')) {
+                return `98765432${10 + rowIndex}`;
+            }
+
+            // NUMERIC
+            if (colType.includes('INT') || colType.includes('INTEGER')) {
+                return rowIndex;
+            } else if (colType.includes('DECIMAL') || colType.includes('FLOAT')) {
+                return (Math.random() * 100 + 50).toFixed(2);
+            } else if (colType.includes('VARCHAR') || colType.includes('TEXT')) {
+                return `Sample ${rowIndex}`;
+            }
+
+            return `Value${rowIndex}`;
+        }
+
+        function resetDiagram() {
+            relationalTables.forEach(table => {
+                table.sampleData = [];
+            });
+            updateDiagram();
+        }
+
+        // ===================== Init GoJS Diagram =====================
+        const $ = go.GraphObject.make;
+        let myDiagram;
+
+        function initDiagram() {
+            // Responsive check for initial scale
+            const isMobile = window.innerWidth < 768;
+
+            myDiagram = $(go.Diagram, "relationalDiagramDiv", {
+                initialContentAlignment: go.Spot.Center,
+                "undoManager.isEnabled": true,
+                layout: $(go.GridLayout, {
+                    wrappingWidth: Infinity,
+                    spacing: new go.Size(isMobile ? 50 : 100, 80), // Tighter spacing on mobile
+                    alignment: go.GridLayout.Position
+                }),
+                "toolManager.mouseWheelBehavior": go.ToolManager.WheelZoom,
+                initialScale: isMobile ? 0.55 : 0.85 // Zoom out more on mobile start
+            });
+
+            // ===================== IMPROVED Node Template =====================
+            myDiagram.nodeTemplate =
+                $(go.Node, "Auto", {
+                        selectionAdorned: true,
+                        resizable: false,
+                        locationSpot: go.Spot.Center,
+                        shadowVisible: true,
+                        shadowColor: "rgba(0,0,0,0.1)",
+                        shadowOffset: new go.Point(4, 4),
+                        shadowBlur: 10
+                    },
+
+                    // Outer rounded rectangle border
+                    $(go.Shape, "RoundedRectangle", {
+                        fill: "white",
+                        stroke: "#D1D5DB",
+                        strokeWidth: 1,
+                        parameter1: 8
+                    }),
+
+                    $(go.Panel, "Vertical", {
+                            margin: 0,
+                            stretch: go.GraphObject.Fill
+                        },
+
+                        // ========== TABLE HEADER (Purple Gradient) ==========
+                        $(go.Panel, "Auto", {
+                                stretch: go.GraphObject.Horizontal
+                            },
+                            $(go.Shape, "RoundedRectangle", {
+                                fill: $(go.Brush, "Linear", {
+                                    0: "#6366f1",
+                                    1: "#4f46e5"
+                                }), // Tailwind Indigo 500 -> 600
+                                stroke: null,
+                                parameter1: 8,
+                                parameter2: 4, // Only top corners rounded
+                                height: 44
+                            }),
+                            $(go.TextBlock, {
+                                    font: "bold 15px 'Inter', sans-serif",
+                                    stroke: "white",
+                                    margin: 8,
+                                    textAlign: "center"
+                                },
+                                new go.Binding("text", "tableName")
+                            )
+                        ),
+
+                        // ========== COLUMN HEADERS ROW (Light Purple) ==========
+                        $(go.Panel, "Table", {
+                                background: "#EEF2FF", // Indigo-50
+                                stretch: go.GraphObject.Horizontal,
+                                margin: 0,
+                                defaultAlignment: go.Spot.Center
+                            },
+                            new go.Binding("itemArray", "columnHeaders"), {
+                                itemTemplate: $(go.Panel, "Auto", {
+                                        row: 0,
+                                        stretch: go.GraphObject.Vertical
+                                    },
+                                    new go.Binding("column", "index"),
+                                    $(go.Shape, "Rectangle", {
+                                        fill: "#E0E7FF", // Indigo-100
+                                        stroke: "#C7D2FE", // Indigo-200
+                                        strokeWidth: 1,
+                                        width: 140,
+                                        height: 32
+                                    }),
+                                    $(go.TextBlock, {
+                                            font: "600 12px 'Inter', sans-serif",
+                                            stroke: "#4338CA", // Indigo-700
+                                            margin: 6,
+                                            textAlign: "center",
+                                            overflow: go.TextBlock.OverflowEllipsis,
+                                            maxLines: 1
+                                        },
+                                        new go.Binding("text", "name")
+                                    )
+                                )
+                            }
+                        ),
+
+                        // ========== DATA ROWS (Alternating Colors) ==========
+                        $(go.Panel, "Vertical", {
+                                stretch: go.GraphObject.Horizontal,
+                                margin: 0,
+                                defaultAlignment: go.Spot.Left
+                            },
+                            new go.Binding("itemArray", "sampleData"), {
+                                itemTemplate: $(go.Panel, "Table", {
+                                        stretch: go.GraphObject.Horizontal,
+                                        defaultAlignment: go.Spot.Center
+                                    },
+                                    new go.Binding("background", "rowIndex", function(idx) {
+                                        return idx % 2 === 0 ? "#fafafa" : "#FFFFFF";
+                                    }),
+                                    new go.Binding("itemArray", "values"), {
+                                        itemTemplate: $(go.Panel, "Auto", {
+                                                row: 0,
+                                                stretch: go.GraphObject.Vertical
+                                            },
+                                            new go.Binding("column", "index"),
+                                            $(go.Shape, "Rectangle", {
+                                                stroke: "#F3F4F6", // Gray-100
+                                                strokeWidth: 1,
+                                                width: 140,
+                                                height: 30
+                                            }, new go.Binding("fill", "", function(val, shape) {
+                                                const panel = shape.part;
+                                                if (!panel) return "white";
+                                                const row = panel.data;
+                                                return row.rowIndex % 2 === 0 ? "#fafafa" : "#FFFFFF";
+                                            })),
+                                            $(go.TextBlock, {
+                                                    font: "12px 'Inter', sans-serif",
+                                                    stroke: "#374151", // Gray-700
+                                                    margin: 4,
+                                                    textAlign: "center",
+                                                    overflow: go.TextBlock.OverflowEllipsis,
+                                                    maxLines: 1,
+                                                    maxSize: new go.Size(130, NaN)
+                                                },
+                                                new go.Binding("text", "value")
+                                            )
+                                        )
+                                    }
+                                )
+                            }
+                        )
+                    )
+                );
+
+            // ===================== Link Template =====================
+            myDiagram.linkTemplate =
+                $(go.Link, {
+                        routing: go.Link.AvoidsNodes,
+                        curve: go.Link.JumpOver,
+                        corner: 8
+                    },
+                    $(go.Shape, {
+                        strokeWidth: 2,
+                        stroke: "#818CF8"
+                    }), // Indigo-400
+                    $(go.Shape, {
+                        toArrow: "Standard",
+                        fill: "#818CF8",
+                        stroke: null,
+                        scale: 1.2
+                    }),
+                    $(go.TextBlock, {
+                            segmentOffset: new go.Point(0, -10),
+                            font: "bold 11px 'Inter', sans-serif",
+                            stroke: "#4338CA", // Indigo-700
+                            background: "rgba(255, 255, 255, 0.8)",
+                            margin: 4
+                        },
+                        new go.Binding("text", "relationship")
+                    )
+                );
+        }
+
+        // ===================== Update Diagram Function =====================
+        function updateDiagram() {
+            const nodes = relationalTables.map(table => {
+                // Column headers with index
+                const columnHeaders = table.columns.map((col, idx) => ({
+                    name: col.name,
+                    index: idx
+                }));
+
+                // Process sample data with row index and cell values
+                const processedSampleData = (table.sampleData || []).map((row, rowIdx) => {
+                    const values = table.columns.map((col, colIdx) => ({
+                        value: row[col.name] || "",
+                        index: colIdx
+                    }));
+                    return {
+                        values: values,
+                        rowIndex: rowIdx
+                    };
+                });
+
+                return {
+                    key: table.tableName,
+                    tableName: table.tableName,
+                    columnHeaders: columnHeaders,
+                    sampleData: processedSampleData
+                };
+            });
+
+            // Build Links
+            const links = [];
+            relationalTables.forEach(table => {
+                (table.foreignKeys || []).forEach(fk => {
+                    links.push({
+                        from: table.tableName,
+                        to: fk.references,
+                        relationship: "1:N"
+                    });
+                });
+            });
+
+            // Set Model
+            const model = new go.GraphLinksModel();
+            model.nodeDataArray = nodes;
+            model.linkDataArray = links;
+            myDiagram.model = model;
+        }
+
+        // Initialize diagram when page loads
+        window.addEventListener('DOMContentLoaded', function() {
+            feather.replace();
+            initDiagram();
+
+            // Auto-generate sample data if none exists
+            if (relationalTables.every(table => !table.sampleData || table.sampleData.length === 0)) {
+                generateSampleData(3);
+            } else {
+                updateDiagram();
+            }
+
+            // Handle Window Resize
+            window.addEventListener('resize', function() {
+                if (myDiagram) myDiagram.requestUpdate();
+            });
+        });
+    </script>
 </body>
 
 </html>
