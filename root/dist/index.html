@@ -22,40 +22,87 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
 
     @keyframes fadeOut {
-      from { opacity: 1; }
-      to { opacity: 0; }
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0;
+      }
     }
 
     @keyframes slideIn {
-      from { transform: translateY(-50px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+      from {
+        transform: translateY(-50px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
 
     @keyframes slideInLeft {
-      from { transform: translateX(-20px); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
+      from {
+        transform: translateX(-20px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
     }
 
     @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
     }
 
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 3px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 3px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
 
     .dropdown-shadow {
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     }
 
-    .tooltip { position: relative; }
+    .tooltip {
+      position: relative;
+    }
+
     .tooltip::before {
       content: attr(data-tooltip);
       position: absolute;
@@ -73,10 +120,18 @@
       transition: opacity 0.2s;
       z-index: 100;
     }
-    .tooltip:hover::before { opacity: 1; }
 
-    .nav-btn-animate { transition: transform 0.1s ease-out; }
-    .nav-btn-animate:active { transform: scale(0.95); }
+    .tooltip:hover::before {
+      opacity: 1;
+    }
+
+    .nav-btn-animate {
+      transition: transform 0.1s ease-out;
+    }
+
+    .nav-btn-animate:active {
+      transform: scale(0.95);
+    }
 
     /* Mobile sidebar overlay */
     .mobile-overlay {
@@ -155,7 +210,10 @@
 
     /* Touch-friendly buttons on mobile */
     @media (max-width: 768px) {
-      button, input, select {
+
+      button,
+      input,
+      select {
         min-height: 44px;
       }
     }
@@ -169,9 +227,11 @@
 
   <div id="mobileWarningModal" class="fixed inset-0 z-[60] hidden items-center justify-center p-4">
     <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity"></div>
-    
-    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden transform transition-all scale-100 border border-slate-200" style="animation: slideIn 0.3s ease-out">
-      
+
+    <div
+      class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden transform transition-all scale-100 border border-slate-200"
+      style="animation: slideIn 0.3s ease-out">
+
       <div class="bg-slate-50 p-6 flex justify-center border-b border-slate-100">
         <div class="relative">
           <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
@@ -186,7 +246,8 @@
       <div class="p-6 text-center space-y-4">
         <h3 class="text-xl font-bold text-slate-800">Desktop Recommended</h3>
         <p class="text-slate-600 leading-relaxed">
-          For the best experience, we highly recommend using a <span class="font-semibold text-blue-600">PC or Laptop</span>.
+          For the best experience, we highly recommend using a <span class="font-semibold text-blue-600">PC or
+            Laptop</span>.
         </p>
         <p class="text-sm text-slate-400">
           Mobile screens may limit your ability to drag, drop, and visualize large models effectively.
@@ -194,7 +255,8 @@
       </div>
 
       <div class="p-4 bg-slate-50 border-t border-slate-100">
-        <button onclick="closeMobileWarning()" class="w-full py-3 px-4 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-xl transition-colors shadow-lg shadow-slate-900/20 flex items-center justify-center gap-2">
+        <button onclick="closeMobileWarning()"
+          class="w-full py-3 px-4 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-xl transition-colors shadow-lg shadow-slate-900/20 flex items-center justify-center gap-2">
           <span>Continue Anyway</span>
           <i data-feather="arrow-right" class="w-4 h-4"></i>
         </button>
@@ -202,9 +264,11 @@
     </div>
   </div>
 
-  <nav class="bg-slate-900 text-white px-3 md:px-6 py-3 flex items-center justify-between border-b border-slate-700 shadow-md z-40">
+  <nav
+    class="bg-slate-900 text-white px-3 md:px-6 py-3 flex items-center justify-between border-b border-slate-700 shadow-md z-40">
     <!-- Mobile Menu Button -->
-    <button onclick="toggleMobileSidebar()" class="mobile-menu-btn items-center justify-center w-10 h-10 rounded-lg hover:bg-slate-800">
+    <button onclick="toggleMobileSidebar()"
+      class="mobile-menu-btn items-center justify-center w-10 h-10 rounded-lg hover:bg-slate-800">
       <i data-feather="menu" class="w-6 h-6"></i>
     </button>
 
@@ -218,14 +282,30 @@
       </div>
     </div>
 
-    <!-- Mobile Actions Menu Button -->
-    <button onclick="toggleMobileActionsMenu()" class="mobile-menu-btn items-center justify-center w-10 h-10 rounded-lg hover:bg-slate-800">
-      <i data-feather="more-vertical" class="w-6 h-6"></i>
-    </button>
+    <div class="flex items-center gap-3 md:gap-4">
+
+      <div class="flex items-center gap-2 md:gap-3 border-r border-slate-700 pr-3 mr-1 md:border-none md:pr-0 md:mr-0">
+        <a href="https://github.com/VanshRai7000/" target="_blank"
+          class="text-slate-400 hover:text-white transition-transform hover:scale-110" title="GitHub">
+          <i data-feather="github" class="w-5 h-5 md:w-6 md:h-6"></i>
+        </a>
+        <a href="https://www.linkedin.com/in/vansh-rai-chaudhary-3a8a53291/" target="_blank"
+          class="text-slate-400 hover:text-blue-400 transition-transform hover:scale-110 ml-[#20px]" title="LinkedIn">
+          <i data-feather="linkedin" class="w-5 h-5 md:w-6 md:h-6"></i>
+        </a>
+      </div>
+
+      <button onclick="toggleMobileActionsMenu()"
+        class="mobile-settings-btn md:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-slate-800">
+        <i data-feather="more-vertical" class="w-6 h-6"></i>
+      </button>
+    </div>
+
   </nav>
 
   <!-- Mobile Actions Menu (Bottom Sheet) -->
-  <div id="mobileActionsMenu" class="fixed inset-x-0 bottom-0 z-50 transform translate-y-full transition-transform duration-300 md:hidden">
+  <div id="mobileActionsMenu"
+    class="fixed inset-x-0 bottom-0 z-50 transform translate-y-full transition-transform duration-300 md:hidden">
     <div class="bg-white rounded-t-2xl shadow-2xl border-t border-gray-200 max-h-[80vh] overflow-y-auto">
       <div class="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
         <h3 class="text-lg font-semibold text-gray-800">Actions</h3>
@@ -233,35 +313,40 @@
           <i data-feather="x" class="w-5 h-5"></i>
         </button>
       </div>
-      
+
       <div class="p-4 space-y-3">
-        <button onclick="saveProject(); toggleMobileActionsMenu();" class="w-full flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-sm">
+        <button onclick="saveProject(); toggleMobileActionsMenu();"
+          class="w-full flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-sm">
           <i data-feather="save" class="w-5 h-5"></i>
           <span class="font-medium">Save Project</span>
         </button>
 
-        <button onclick="document.getElementById('fileInput').click(); toggleMobileActionsMenu();" class="w-full flex items-center gap-3 px-4 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 shadow-sm">
+        <button onclick="document.getElementById('fileInput').click(); toggleMobileActionsMenu();"
+          class="w-full flex items-center gap-3 px-4 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 shadow-sm">
           <i data-feather="folder" class="w-5 h-5"></i>
           <span class="font-medium">Open Project</span>
         </button>
 
         <div class="border-t border-gray-200 pt-3">
           <p class="text-xs font-semibold text-gray-500 mb-2 px-2">EXPORT OPTIONS</p>
-          <button onclick="exportDiagramToPDF(); toggleMobileActionsMenu();" class="w-full flex items-center gap-3 px-4 py-3 bg-gray-50 text-gray-800 rounded-lg hover:bg-gray-100">
+          <button onclick="exportDiagramToPDF(); toggleMobileActionsMenu();"
+            class="w-full flex items-center gap-3 px-4 py-3 bg-gray-50 text-gray-800 rounded-lg hover:bg-gray-100">
             <i data-feather="file" class="w-5 h-5"></i>
             <div class="text-left">
               <p class="font-medium">Quick Export</p>
               <p class="text-xs text-gray-500">Single page PDF</p>
             </div>
           </button>
-          <button onclick="exportAdvancedPDF(); toggleMobileActionsMenu();" class="w-full flex items-center gap-3 px-4 py-3 bg-gray-50 text-gray-800 rounded-lg hover:bg-gray-100 mt-2">
+          <button onclick="exportAdvancedPDF(); toggleMobileActionsMenu();"
+            class="w-full flex items-center gap-3 px-4 py-3 bg-gray-50 text-gray-800 rounded-lg hover:bg-gray-100 mt-2">
             <i data-feather="layers" class="w-5 h-5"></i>
             <div class="text-left">
               <p class="font-medium">Multi-page PDF</p>
               <p class="text-xs text-gray-500">Detailed documentation</p>
             </div>
           </button>
-          <button onclick="exportPageToPDF(); toggleMobileActionsMenu();" class="w-full flex items-center gap-3 px-4 py-3 bg-gray-50 text-gray-800 rounded-lg hover:bg-gray-100 mt-2">
+          <button onclick="exportPageToPDF(); toggleMobileActionsMenu();"
+            class="w-full flex items-center gap-3 px-4 py-3 bg-gray-50 text-gray-800 rounded-lg hover:bg-gray-100 mt-2">
             <i data-feather="layout" class="w-5 h-5"></i>
             <div class="text-left">
               <p class="font-medium">Full Page</p>
@@ -271,17 +356,20 @@
         </div>
 
         <div class="border-t border-gray-200 pt-3 space-y-3">
-          <button onclick="handleConvert(); toggleMobileActionsMenu();" class="w-full flex items-center gap-3 px-4 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 shadow-sm">
+          <button onclick="handleConvert(); toggleMobileActionsMenu();"
+            class="w-full flex items-center gap-3 px-4 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 shadow-sm">
             <i data-feather="refresh-cw" class="w-5 h-5"></i>
             <span class="font-medium">Convert</span>
           </button>
 
-          <button onclick="handleGenerateSQL(); toggleMobileActionsMenu();" class="w-full flex items-center gap-3 px-4 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 shadow-sm">
+          <button onclick="handleGenerateSQL(); toggleMobileActionsMenu();"
+            class="w-full flex items-center gap-3 px-4 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-700 shadow-sm">
             <i data-feather="code" class="w-5 h-5"></i>
             <span class="font-medium">Generate SQL</span>
           </button>
 
-          <button onclick="clearCanvas(); toggleMobileActionsMenu();" class="w-full flex items-center gap-3 px-4 py-3 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 border border-red-200 shadow-sm">
+          <button onclick="clearCanvas(); toggleMobileActionsMenu();"
+            class="w-full flex items-center gap-3 px-4 py-3 bg-red-100 text-red-700 rounded-lg hover:bg-red-300 border border-red-200 shadow-sm">
             <i data-feather="trash-2" class="w-5 h-5"></i>
             <span class="font-medium">Clear Canvas</span>
           </button>
@@ -291,7 +379,8 @@
   </div>
 
   <div class="flex flex-1 relative overflow-hidden">
-    <aside id="sidebar" class="h-full w-[400px] min-w-[250px] max-w-[600px] bg-white border-r border-gray-200 shadow-lg flex flex-col transition-all duration-200 ease-in-out">
+    <aside id="sidebar"
+      class="h-full w-[400px] min-w-[250px] max-w-[600px] bg-white border-r border-gray-200 shadow-lg flex flex-col transition-all duration-200 ease-in-out">
       <div class="p-4 md:p-6 border-b border-gray-200">
         <div class="flex items-center justify-between mb-2">
           <h1 class="text-xl md:text-2xl font-bold text-gray-900">Build Your Model</h1>
@@ -300,7 +389,8 @@
           </button>
         </div>
         <p class="text-sm text-gray-600">Enterprise Database Design Tool</p>
-        <div class="mt-3 inline-flex items-center gap-2 bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full">
+        <div
+          class="mt-3 inline-flex items-center gap-2 bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full">
           <span class="w-2 h-2 bg-green-500 rounded-full"></span>
           Ready to build
         </div>
@@ -314,8 +404,10 @@
           </div>
           <label class="block text-sm font-medium text-gray-700 mb-2">Number of Entities:</label>
           <div class="flex items-center gap-2 md:gap-3">
-            <input type="number" id="numEntities" min="1" class="w-20 border-gray-300 rounded-md shadow-sm text-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
-            <button onclick="generateEntities()" class="flex items-center gap-1 bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 shadow-sm">
+            <input type="number" id="numEntities" min="1"
+              class="w-20 border-gray-300 rounded-md shadow-sm text-sm px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+            <button onclick="generateEntities()"
+              class="flex items-center gap-1 bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 shadow-sm">
               <i data-feather="plus-circle" class="w-4 h-4"></i> Generate
             </button>
           </div>
@@ -327,7 +419,8 @@
             <i data-feather="git-branch" class="w-5 h-5 text-gray-600 mr-2"></i>
             <h2 class="text-base md:text-lg font-semibold text-gray-800">Relationships</h2>
           </div>
-          <button onclick="addRelationship()" class="w-full flex items-center justify-center gap-1 bg-white text-gray-700 px-3 py-2 rounded-md text-sm font-medium border border-gray-300 hover:bg-gray-50 shadow-sm">
+          <button onclick="addRelationship()"
+            class="w-full flex items-center justify-center gap-1 bg-white text-gray-700 px-3 py-2 rounded-md text-sm font-medium border border-gray-300 hover:bg-gray-50 shadow-sm">
             <i data-feather="link" class="w-4 h-4"></i> Add Relationship
           </button>
           <div id="relationshipsContainer" class="mt-4 space-y-3"></div>
@@ -335,8 +428,10 @@
       </div>
     </aside>
 
-    <div id="dragHandle" class="absolute top-0 bottom-0 left-[400px] w-1.5 cursor-col-resize bg-gray-200 hover:bg-blue-500 transition-colors z-10">
-      <div class="absolute top-1/2 -translate-y-1/2 -right-2.5 bg-slate-700 text-white p-1 rounded-full shadow-lg cursor-pointer hover:bg-blue-600">
+    <div id="dragHandle"
+      class="absolute top-0 bottom-0 left-[400px] w-1.5 cursor-col-resize bg-gray-200 hover:bg-blue-500 transition-colors z-10">
+      <div
+        class="absolute top-1/2 -translate-y-1/2 -right-2.5 bg-slate-700 text-white p-1 rounded-full shadow-lg cursor-pointer hover:bg-blue-600">
         <i data-feather="chevrons-left" class="w-4 h-4"></i>
       </div>
     </div>
@@ -356,20 +451,23 @@
       </div>
 
       <!-- Desktop Action Sidebar -->
-      <aside id="actionSidebar" class="absolute top-0 right-0 h-full w-64 bg-white border-l border-gray-200 shadow-xl z-20 transform translate-x-full transition-transform duration-300 ease-in-out custom-scrollbar overflow-y-auto hidden md:block">
+      <aside id="actionSidebar"
+        class="absolute top-0 right-0 h-full w-64 bg-white border-l border-gray-200 shadow-xl z-20 transform translate-x-full transition-transform duration-300 ease-in-out custom-scrollbar overflow-y-auto hidden md:block">
         <div class="p-4 space-y-4">
           <div class="pb-2 border-b border-gray-200">
             <h3 class="text-lg font-semibold text-gray-800">Actions</h3>
             <p class="text-sm text-gray-500">Manage your project</p>
           </div>
 
-          <button onclick="saveProject()" class="group w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 text-white font-medium tracking-wide rounded-lg border border-blue-700 shadow-sm hover:bg-blue-500 hover:border-blue-600 hover:shadow-md hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-blue-400/50 active:scale-[0.98] transition-all duration-200 ease-in-out">
+          <button onclick="saveProject()"
+            class="group w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 text-white font-medium tracking-wide rounded-lg border border-blue-700 shadow-sm hover:bg-blue-500 hover:border-blue-600 hover:shadow-md hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-blue-400/50 active:scale-[0.98] transition-all duration-200 ease-in-out">
             <i data-feather="save" class="w-4 h-4 text-white group-hover:text-blue-100 transition-colors"></i>
             <span class="group-hover:text-blue-50">Save Project</span>
           </button>
 
           <div class="relative">
-            <button onclick="document.getElementById('fileInput').click()" class="group w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-800 text-slate-100 font-medium tracking-wide rounded-lg border border-slate-700 shadow-sm hover:bg-slate-700 hover:border-slate-600 hover:shadow-md hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-blue-500/40 active:scale-[0.98] transition-all duration-200 ease-in-out">
+            <button onclick="document.getElementById('fileInput').click()"
+              class="group w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-800 text-slate-100 font-medium tracking-wide rounded-lg border border-slate-700 shadow-sm hover:bg-slate-700 hover:border-slate-600 hover:shadow-md hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-blue-500/40 active:scale-[0.98] transition-all duration-200 ease-in-out">
               <i data-feather="folder" class="w-4 h-4 text-blue-400 group-hover:text-blue-300 transition-colors"></i>
               <span class="group-hover:text-blue-100">Open Project</span>
             </button>
@@ -377,32 +475,38 @@
           </div>
 
           <div class="relative">
-            <button onclick="toggleExportMenu()" class="group w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-800 text-slate-100 font-medium tracking-wide rounded-lg border border-slate-700 shadow-sm hover:bg-slate-700 hover:border-slate-600 hover:shadow-md hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-blue-500/40 active:scale-[0.98] transition-all duration-200 ease-in-out">
+            <button onclick="toggleExportMenu()"
+              class="group w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-800 text-slate-100 font-medium tracking-wide rounded-lg border border-slate-700 shadow-sm hover:bg-slate-700 hover:border-slate-600 hover:shadow-md hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-blue-500/40 active:scale-[0.98] transition-all duration-200 ease-in-out">
               <i data-feather="download" class="w-4 h-4 text-blue-400 group-hover:text-blue-300 transition-colors"></i>
               <span class="group-hover:text-blue-100">Export</span>
-              <i data-feather="chevron-down" class="w-4 h-4 text-slate-300 group-hover:text-blue-300 transition-colors"></i>
+              <i data-feather="chevron-down"
+                class="w-4 h-4 text-slate-300 group-hover:text-blue-300 transition-colors"></i>
             </button>
 
-            <div id="exportMenu" class="hidden absolute right-0 mt-2 w-full bg-white rounded-xl shadow-lg border border-gray-200 z-50 dropdown-shadow overflow-hidden">
+            <div id="exportMenu"
+              class="hidden absolute right-0 mt-2 w-full bg-white rounded-xl shadow-lg border border-gray-200 z-50 dropdown-shadow overflow-hidden">
               <div class="p-2 bg-slate-50 border-b border-gray-200">
                 <p class="text-xs font-semibold text-gray-700">Export Options</p>
               </div>
               <div class="custom-scrollbar max-h-64 overflow-y-auto">
-                <button onclick="exportDiagramToPDF(); toggleExportMenu();" class="w-full text-left px-4 py-3 hover:bg-slate-100 text-gray-800 text-sm flex items-center gap-3 border-b border-gray-100">
+                <button onclick="exportDiagramToPDF(); toggleExportMenu();"
+                  class="w-full text-left px-4 py-3 hover:bg-slate-100 text-gray-800 text-sm flex items-center gap-3 border-b border-gray-100">
                   <i data-feather="file" class="w-4 h-4 text-gray-500"></i>
                   <div>
                     <p class="font-medium">Quick Export</p>
                     <p class="text-xs text-gray-500">Single page PDF</p>
                   </div>
                 </button>
-                <button onclick="exportAdvancedPDF(); toggleExportMenu();" class="w-full text-left px-4 py-3 hover:bg-slate-100 text-gray-800 text-sm flex items-center gap-3 border-b border-gray-100">
+                <button onclick="exportAdvancedPDF(); toggleExportMenu();"
+                  class="w-full text-left px-4 py-3 hover:bg-slate-100 text-gray-800 text-sm flex items-center gap-3 border-b border-gray-100">
                   <i data-feather="layers" class="w-4 h-4 text-gray-500"></i>
                   <div>
                     <p class="font-medium">Multi-page PDF</p>
                     <p class="text-xs text-gray-500">Detailed documentation</p>
                   </div>
                 </button>
-                <button onclick="exportPageToPDF(); toggleExportMenu();" class="w-full text-left px-4 py-3 hover:bg-slate-100 text-gray-800 text-sm flex items-center gap-3">
+                <button onclick="exportPageToPDF(); toggleExportMenu();"
+                  class="w-full text-left px-4 py-3 hover:bg-slate-100 text-gray-800 text-sm flex items-center gap-3">
                   <i data-feather="layout" class="w-4 h-4 text-gray-500"></i>
                   <div>
                     <p class="font-medium">Full Page</p>
@@ -415,17 +519,21 @@
 
           <hr class="my-4">
 
-          <button onclick="handleConvert()" class="group w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-800 text-slate-100 font-medium tracking-wide rounded-lg border border-slate-700 shadow-sm hover:bg-slate-700 hover:border-slate-600 hover:shadow-md hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-blue-500/40 active:scale-[0.98] transition-all duration-200 ease-in-out">
+          <button onclick="handleConvert()"
+            class="group w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-800 text-slate-100 font-medium tracking-wide rounded-lg border border-slate-700 shadow-sm hover:bg-slate-700 hover:border-slate-600 hover:shadow-md hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-blue-500/40 active:scale-[0.98] transition-all duration-200 ease-in-out">
             <i data-feather="refresh-cw" class="w-4 h-4 text-blue-500 group-hover:text-green-50 transition-colors"></i>
             <span class="group-hover:text-green-50">Convert</span>
           </button>
 
-          <button onclick="handleGenerateSQL()" class="group w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-800 text-slate-100 font-medium tracking-wide rounded-lg border border-slate-700 shadow-sm hover:bg-slate-700 hover:border-slate-600 hover:shadow-md hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-blue-500/40 active:scale-[0.98] transition-all duration-200 ease-in-out">
+          <button onclick="handleGenerateSQL()"
+            class="group w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-800 text-slate-100 font-medium tracking-wide rounded-lg border border-slate-700 shadow-sm hover:bg-slate-700 hover:border-slate-600 hover:shadow-md hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-blue-500/40 active:scale-[0.98] transition-all duration-200 ease-in-out">
             <i data-feather="code" class="w-4 h-4 text-blue-500 group-hover:text-blue-50 transition-colors"></i>
             <span class="group-hover:text-blue-50">Generate SQL</span>
           </button>
 
-          <button onclick="clearCanvas()" class="group w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-800 text-slate-100 font-medium tracking-wide rounded-lg border border-slate-700 shadow-sm hover:bg-slate-700 hover:border-slate-600 hover:shadow-md hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-blue-500/40 active:scale-[0.98] transition-all duration-200 ease-in-out" data-tooltip="Clear Canvas">
+          <button onclick="clearCanvas()"
+            class="group w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-slate-800 text-slate-100 font-medium tracking-wide rounded-lg border border-slate-700 shadow-sm hover:bg-slate-700 hover:border-slate-600 hover:shadow-md hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-blue-500/40 active:scale-[0.98] transition-all duration-200 ease-in-out"
+            data-tooltip="Clear Canvas">
             <i data-feather="trash-2" class="w-4 h-4 text-blue-500 group-hover:text-red-50 transition-colors"></i>
             <span class="group-hover:text-red-50">Clear Canvas</span>
           </button>
@@ -433,8 +541,10 @@
       </aside>
 
       <!-- Desktop Toggle Button -->
-      <div id="actionSidebarToggle" onclick="toggleActionSidebar()" class="absolute top-1/2 -translate-y-1/2 right-0 z-30 transition-all duration-300 ease-in-out hidden md:block">
-        <button class="w-10 h-10 flex items-center justify-center bg-slate-800 text-white rounded-l-full shadow-lg hover:bg-blue-600 focus:outline-none">
+      <div id="actionSidebarToggle" onclick="toggleActionSidebar()"
+        class="absolute top-1/2 -translate-y-1/2 right-0 z-30 transition-all duration-300 ease-in-out hidden md:block">
+        <button
+          class="w-10 h-10 flex items-center justify-center bg-slate-800 text-white rounded-l-full shadow-lg hover:bg-blue-600 focus:outline-none">
           <i id="action-sidebar-icon" data-feather="chevron-left" class="w-5 h-5"></i>
         </button>
       </div>
@@ -443,15 +553,20 @@
 
   <div id="relationalModelContainer" class="mt-6"></div>
 
-  <footer class="bg-slate-900 text-slate-400 px-3 md:px-6 py-3 md:py-4 border-t border-slate-700 w-full">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-2">
-      <div class="text-xs md:text-sm text-center md:text-left">
-        <span class="font-medium text-slate-300">ER Model Builder</span> | © 2025
+  <footer class="bg-gray-900 text-gray-400 px-4 md:px-6 py-3 border-t border-gray-700 w-full shrink-0 z-10">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 md:gap-0">
+      <div class="text-xs text-center md:text-left">
+        <span class="font-medium text-gray-300">Database Schema Visualizer</span>
+        <span class="hidden md:inline text-gray-600 mx-2">|</span>
+        <span class="opacity-60 block md:inline">Visualizing Live Data Relations</span>
       </div>
-      <div class="flex items-center gap-3 md:gap-6 text-xs md:text-sm">
-        <span class="px-2 py-0.5 bg-blue-600 text-white rounded-full text-xs font-semibold">v1.Enterprise</span>
-        <a href="#" class="hover:text-white transition-colors hidden md:inline">Documentation</a>
-        <a href="#" class="hover:text-white transition-colors hidden md:inline">Support</a>
+      <div class="flex items-center gap-4 text-xs justify-center">
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+          <span class="text-gray-300">System Online</span>
+        </div>
+        <span
+          class="px-2 py-0.5 bg-indigo-900/50 border border-indigo-700/50 text-indigo-300 rounded text-[10px] font-semibold tracking-wide">v2.0.1</span>
       </div>
     </div>
   </footer>
@@ -568,13 +683,13 @@
       showClearModal();
     }
 
-   function showClearModal() {
-  const modal = document.createElement('div');
-  modal.id = 'clearModal';
-  modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4';
-  modal.style.animation = 'fadeIn 0.2s ease-out';
+    function showClearModal() {
+      const modal = document.createElement('div');
+      modal.id = 'clearModal';
+      modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4';
+      modal.style.animation = 'fadeIn 0.2s ease-out';
 
-  modal.innerHTML = `
+      modal.innerHTML = `
     <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeClearModal()"></div>
 
     <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm sm:max-w-md overflow-hidden"
@@ -647,9 +762,9 @@
     </div>
   `;
 
-  document.body.appendChild(modal);
-  feather.replace();
-}
+      document.body.appendChild(modal);
+      feather.replace();
+    }
 
 
     function closeClearModal() {
@@ -782,12 +897,12 @@
     });
 
     // Close mobile actions menu when clicking outside
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
       const menu = document.getElementById('mobileActionsMenu');
       const menuButton = e.target.closest('button[onclick="toggleMobileActionsMenu()"]');
-      
-      if (menu && menu.style.transform === 'translateY(0px)' && 
-          !menu.contains(e.target) && !menuButton) {
+
+      if (menu && menu.style.transform === 'translateY(0px)' &&
+        !menu.contains(e.target) && !menuButton) {
         menu.style.transform = 'translateY(100%)';
       }
     });
@@ -806,11 +921,11 @@
 
     function closeMobileWarning() {
       const modal = document.getElementById('mobileWarningModal');
-      
+
       // Add fade out animation effect
       modal.style.opacity = '0';
       modal.style.transition = 'opacity 0.3s ease';
-      
+
       setTimeout(() => {
         modal.classList.add('hidden');
         modal.classList.remove('flex');
