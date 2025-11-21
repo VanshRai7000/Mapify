@@ -1071,27 +1071,27 @@ function makeEntities(element) {
  * a strong entity. The "Weak" option correctly maps to the "Weak" category.
  */
 function applyEntityType(selectEl) {
-    // Get the selected value ("Strong" or "Weak")
-    const selectedValue = selectEl.value;
-    
-    // Find the parent entity card and get its name
-    const entityDiv = selectEl.closest('.entity-container');
-    const entityNamefeild = entityDiv.querySelector('.entityNameInput');
-    const entityName = entityNamefeild.value.trim();
+  // Get the selected value ("Strong" or "Weak")
+  const selectedValue = selectEl.value;
 
-    // Determine the correct GoJS category name
-    // 💡 THE FIX: "Strong" maps to "Rectangle", "Weak" maps to "Weak"
-    const newCategory = (selectedValue === "Weak") ? "Weak" : "Rectangle";
+  // Find the parent entity card and get its name
+  const entityDiv = selectEl.closest('.entity-container');
+  const entityNamefeild = entityDiv.querySelector('.entityNameInput');
+  const entityName = entityNamefeild.value.trim();
 
-    // Find the corresponding node in the diagram
-    const node = diagram.model.nodeDataArray.find(n => n.text === entityName);
+  // Determine the correct GoJS category name
+  // 💡 THE FIX: "Strong" maps to "Rectangle", "Weak" maps to "Weak"
+  const newCategory = (selectedValue === "Weak") ? "Weak" : "Rectangle";
 
-    // If the node exists, update its category
-    if (node) {
-        diagram.model.startTransaction("changeEntityType");
-        diagram.model.setCategoryForNodeData(node, newCategory);
-        diagram.model.commitTransaction("changeEntityType");
-    }
+  // Find the corresponding node in the diagram
+  const node = diagram.model.nodeDataArray.find(n => n.text === entityName);
+
+  // If the node exists, update its category
+  if (node) {
+    diagram.model.startTransaction("changeEntityType");
+    diagram.model.setCategoryForNodeData(node, newCategory);
+    diagram.model.commitTransaction("changeEntityType");
+  }
 }
 
 // Delete diagram node by text
@@ -2440,5 +2440,346 @@ function copySqlToClipboard() {
   }, (err) => {
     alert('Failed to copy text.');
     console.error('Clipboard copy failed:', err);
+  });
+}
+/* ========================================== */
+/* CONFIG & INITIALIZATION          */
+/* ========================================== */
+const HISTORY_KEY = 'er_builder_history';
+const CURRENT_ID_KEY = 'er_builder_active_id';
+let currentSessionId = null;
+let autoSaveTimer = null;
+let isRenaming = false;
+
+document.addEventListener('DOMContentLoaded', () => {
+  checkDeviceAndShowWarning();
+  renderHistoryList();
+
+  const lastId = localStorage.getItem(CURRENT_ID_KEY);
+  if (lastId) {
+    loadSession(lastId, false);
+  } else {
+    startNewSession(false);
+  }
+
+  if (typeof diagram !== 'undefined') {
+    diagram.addModelChangedListener((e) => {
+      if (e.isTransactionFinished) debounceSave();
+    });
+  }
+  document.body.addEventListener('input', (e) => {
+    if (e.target.matches('input, select') && !e.target.id.startsWith('input-')) {
+      debounceSave();
+    }
+  });
+
+  if (typeof feather !== 'undefined') feather.replace();
+});
+
+/* ========================================== */
+/* HISTORY & SIDEBAR LOGIC          */
+/* ========================================== */
+function toggleHistorySidebar() {
+  const sb = document.getElementById('historySidebar');
+  const overlay = document.getElementById('historyOverlay');
+  if (!sb.classList.contains('-translate-x-full')) {
+    sb.classList.add('-translate-x-full');
+    overlay.classList.add('hidden');
+    overlay.classList.add('opacity-0');
+  } else {
+    sb.classList.remove('-translate-x-full');
+    overlay.classList.remove('hidden');
+    setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+    renderHistoryList();
+  }
+}
+
+function debounceSave() {
+  if (isRenaming) return;
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(saveCurrentState, 1000);
+}
+
+function saveCurrentState() {
+  if (!currentSessionId || isRenaming) return;
+
+  const diagramData = diagram.model.toJson();
+  const entities = [];
+  document.querySelectorAll("#entitiesContainer .entity-block").forEach(block => {
+    const name = block.querySelector(".entityNameInput")?.value || "Unnamed";
+    entities.push({ name });
+  });
+  const relationships = [];
+  document.querySelectorAll("#relationshipsContainer .relationship-container").forEach(block => {
+    const rName = block.querySelector(".relationshipNameInput")?.value || "Unnamed";
+    relationships.push({ name: rName });
+  });
+
+  let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+  const index = history.findIndex(h => h.id === currentSessionId);
+
+  let sessionName = "Untitled Diagram";
+  let isCustom = false;
+
+  if (index > -1) {
+    if (history[index].customName === true) {
+      sessionName = history[index].name;
+      isCustom = true;
+    } else if (entities.length > 0) {
+      sessionName = `${entities[0].name} Model`;
+    }
+  } else if (entities.length > 0) {
+    sessionName = `${entities[0].name} Model`;
+  }
+
+  const sessionData = {
+    id: currentSessionId,
+    name: sessionName,
+    customName: isCustom,
+    timestamp: Date.now(),
+    data: { diagramData, entities, relationships }
+  };
+
+  if (index > -1) {
+    history[index] = sessionData;
+  } else {
+    history.unshift(sessionData);
+  }
+
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+
+  const sb = document.getElementById('historySidebar');
+  if (!sb.classList.contains('-translate-x-full')) renderHistoryList();
+}
+
+function loadSession(id, closeSidebar = true) {
+  const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+  const session = history.find(h => h.id === id);
+  if (!session) return;
+
+  currentSessionId = session.id;
+  localStorage.setItem(CURRENT_ID_KEY, currentSessionId);
+
+  if (diagram) diagram.model = go.Model.fromJson(session.data.diagramData);
+  rebuildUIFromDiagram(diagram.model);
+
+  if (closeSidebar) toggleHistorySidebar();
+  renderHistoryList();
+}
+
+function startNewSession(refreshUI = true) {
+  currentSessionId = 'sess_' + Date.now() + Math.random().toString(36).substr(2, 5);
+  localStorage.setItem(CURRENT_ID_KEY, currentSessionId);
+
+  if (refreshUI) {
+    if (diagram) diagram.model.clear();
+    document.getElementById("entitiesContainer").innerHTML = '';
+    document.getElementById("relationshipsContainer").innerHTML = '';
+    const numInput = document.getElementById("numEntities");
+    if (numInput) numInput.value = '';
+    if (typeof totalEntities !== 'undefined') totalEntities = 0;
+    toggleHistorySidebar();
+  }
+  saveCurrentState();
+}
+
+function deleteSession(e, id) {
+  e.stopPropagation();
+  // Confirmation removed - deletes immediately
+  let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+  history = history.filter(h => h.id !== id);
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+
+  if (currentSessionId === id) {
+    startNewSession();
+  } else {
+    renderHistoryList();
+  }
+}
+
+function clearAllHistory() {
+  // Confirmation removed - deletes immediately
+  localStorage.removeItem(HISTORY_KEY);
+  startNewSession();
+}
+
+/* ========================================== */
+/* RENAME & UI LOGIC                */
+/* ========================================== */
+function enableRenaming(e, id) {
+  e.stopPropagation();
+  isRenaming = true;
+  const titleEl = document.getElementById(`title-${id}`);
+  const inputEl = document.getElementById(`input-${id}`);
+  if (titleEl && inputEl) {
+    titleEl.classList.add('hidden');
+    inputEl.classList.remove('hidden');
+    inputEl.classList.add('block');
+    inputEl.focus();
+    inputEl.select();
+  }
+}
+
+function handleRenameKey(e, id) {
+  if (e.key === 'Enter') { e.preventDefault(); saveNewName(id); }
+  if (e.key === 'Escape') { isRenaming = false; renderHistoryList(); }
+}
+
+function saveNewName(id) {
+  const inputEl = document.getElementById(`input-${id}`);
+  if (!inputEl) { isRenaming = false; return; }
+  const newName = inputEl.value.trim();
+  if (newName.length > 0) {
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    const index = history.findIndex(h => h.id === id);
+    if (index > -1) {
+      history[index].name = newName;
+      history[index].customName = true;
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    }
+  }
+  isRenaming = false;
+  renderHistoryList();
+}
+
+// 6. UI HELPERS (ENHANCED)
+function getRelativeDateLabel(timestamp) {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const dStr = date.toDateString();
+  const nStr = now.toDateString();
+  const yStr = yesterday.toDateString();
+
+  if (dStr === nStr) return "Today";
+  if (dStr === yStr) return "Yesterday";
+
+  const diffTime = Math.abs(now - date);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  if (diffDays <= 7) return "Previous 7 Days";
+
+  return "Older";
+}
+
+function renderHistoryList() {
+  const container = document.getElementById('historyList');
+  const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+
+  if (history.length === 0) {
+    container.innerHTML = `
+            <div class="flex flex-col items-center justify-center h-64 text-center opacity-50">
+                <div class="bg-slate-800 p-4 rounded-full mb-3">
+                    <i data-feather="wind" class="w-6 h-6 text-slate-400"></i>
+                </div>
+                <p class="text-slate-400 text-sm font-medium">No history yet</p>
+                <p class="text-slate-600 text-xs mt-1">Your saved diagrams will<br>appear here.</p>
+            </div>
+        `;
+    if (typeof feather !== 'undefined') feather.replace();
+    return;
+  }
+
+  container.innerHTML = '';
+  history.sort((a, b) => b.timestamp - a.timestamp);
+
+  let lastGroup = "";
+
+  history.forEach(item => {
+    const isActive = item.id === currentSessionId;
+    const dateLabel = getRelativeDateLabel(item.timestamp);
+
+    if (dateLabel !== lastGroup) {
+      container.innerHTML += `<div class="history-group-label">${dateLabel}</div>`;
+      lastGroup = dateLabel;
+    }
+
+    const html = `
+          <div onclick="loadSession('${item.id}')" class="history-item group ${isActive ? 'active' : 'inactive'}">
+              <i data-feather="message-square" class="w-4 h-4 flex-shrink-0 ${isActive ? 'text-blue-400' : 'text-slate-600'}"></i>
+              <div class="flex-1 min-w-0">
+                  <h4 id="title-${item.id}" class="text-sm font-medium truncate" title="${item.name}">${item.name}</h4>
+                  <input type="text" id="input-${item.id}" value="${item.name}" class="hidden history-rename-input" onclick="event.stopPropagation()" onkeydown="handleRenameKey(event, '${item.id}')" onblur="saveNewName('${item.id}')">
+              </div>
+              <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <button onclick="enableRenaming(event, '${item.id}')" class="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700 rounded transition-colors" title="Rename"><i data-feather="edit-2" class="w-3 h-3"></i></button>
+                  <button onclick="deleteSession(event, '${item.id}')" class="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors" title="Delete"><i data-feather="trash" class="w-3 h-3"></i></button>
+              </div>
+          </div>
+        `;
+    container.innerHTML += html;
+  });
+
+  if (typeof feather !== 'undefined') feather.replace();
+}
+
+/* ========================================== */
+/* OTHER UI HELPERS                 */
+/* ========================================== */
+function checkDeviceAndShowWarning() {
+  if (window.innerWidth < 768) {
+    const modal = document.getElementById('mobileWarningModal');
+    if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+    if (typeof feather !== 'undefined') feather.replace();
+  }
+}
+function closeMobileWarning() {
+  const modal = document.getElementById('mobileWarningModal');
+  if (modal) {
+    modal.style.transition = 'opacity 0.3s ease'; modal.style.opacity = '0';
+    setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); modal.style.opacity = '1'; }, 300);
+  }
+}
+function toggleMobileSidebar() {
+  document.getElementById('sidebar').classList.toggle('mobile-open');
+  document.getElementById('mobileOverlay').classList.toggle('active');
+}
+function closeMobileSidebar() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('mobileOverlay').classList.remove('active');
+}
+function toggleMobileActionsMenu() {
+  const menu = document.getElementById('mobileActionsMenu');
+  menu.style.transform = (menu.style.transform === 'translateY(0px)') ? 'translateY(100%)' : 'translateY(0)';
+}
+function toggleActionSidebar() {
+  const sb = document.getElementById('actionSidebar');
+  const toggle = document.getElementById('actionSidebarToggle');
+  const icon = document.getElementById('action-sidebar-icon');
+  const main = document.getElementById('mainContent');
+
+  if (sb.classList.contains('translate-x-full')) {
+    sb.classList.remove('translate-x-full'); toggle.style.right = '16rem'; main.style.paddingRight = '16rem'; icon.setAttribute('data-feather', 'chevron-right');
+  } else {
+    sb.classList.add('translate-x-full'); toggle.style.right = '0rem'; main.style.paddingRight = '0rem'; icon.setAttribute('data-feather', 'chevron-left');
+  }
+  feather.replace();
+}
+
+// Rebuild UI Helper
+function rebuildUIFromDiagram(model) {
+  const eContainer = document.getElementById("entitiesContainer");
+  const rContainer = document.getElementById("relationshipsContainer");
+  eContainer.innerHTML = ''; rContainer.innerHTML = '';
+  if (typeof totalEntities !== 'undefined') totalEntities = 0;
+
+  const entityNodes = model.nodeDataArray.filter(n => ["Rectangle", "Strong", "Weak"].includes(n.category));
+  const numInput = document.getElementById("numEntities");
+  if (numInput) numInput.value = entityNodes.length;
+
+  entityNodes.forEach(node => {
+    totalEntities++;
+    const div = document.createElement("div");
+    div.className = "border p-4 mb-4 rounded bg-gray-50 entity-container";
+    div.innerHTML = `<div class="bg-white border border-gray-200 rounded-lg shadow-sm p-4"><div class="flex items-center justify-between mb-3"><h2 class="text-lg font-semibold text-gray-800">Entity ${totalEntities}</h2><button type="button" class="p-1.5 rounded-full bg-red-100 text-red-600" onclick="deleteEntities(this)"><img src="../img/dustbin.png" class="h-4 w-4"></button></div><div class="mb-3"><label class="block text-sm font-medium text-gray-600 mb-1">Entity Name</label><input type="text" value="${node.text}" class="entityNameInput w-full border border-gray-300 rounded-md shadow-sm text-sm px-3 py-2" oninput="RefreshReleationship()" onblur="addBlock(this)"></div><div class="text-xs text-gray-400 italic mt-2">Attributes loaded in diagram</div></div>`;
+    eContainer.appendChild(div);
+  });
+
+  model.nodeDataArray.filter(n => n.category?.includes("Relationship")).forEach(node => {
+    const div = document.createElement("div");
+    div.className = "bg-white border border-gray-200 rounded-lg shadow-sm p-4 mb-4 relationship-container";
+    div.innerHTML = `<div class="flex items-center justify-between mb-2"><h3 class="font-semibold text-gray-700">Relationship</h3><button onclick="deleteRelationship(this)" class="text-red-500 text-xs">Delete</button></div><input type="text" value="${node.text}" class="relationshipNameInput w-full border p-2 rounded text-sm" readonly><div class="text-xs text-gray-400 mt-1">Details loaded in diagram</div>`;
+    rContainer.appendChild(div);
   });
 }
